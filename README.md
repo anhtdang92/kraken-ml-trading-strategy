@@ -71,9 +71,9 @@ This application combines quantitative finance, machine learning, and automated 
 - Comprehensive logging to BigQuery
 - Email/Slack notifications for trade summaries
 
-### 🧪 QuantConnect Backtesting
-- Historical strategy validation (2-3 years of data)
-- Kraken-specific brokerage modeling
+### 🧪 Local Backtesting
+- Custom backtesting engine using real Kraken data
+- Realistic fee modeling (0.16% maker, 0.26% taker)
 - Performance metrics: Sharpe ratio, max drawdown, total return
 - ML strategy vs. equal-weight baseline comparison
 
@@ -91,7 +91,7 @@ This application combines quantitative finance, machine learning, and automated 
 | **Automation** | Cloud Scheduler, Cloud Functions |
 | **Secrets** | Secret Manager |
 | **Trading API** | Kraken API (python-kraken-sdk) |
-| **Backtesting** | QuantConnect |
+| **Backtesting** | Custom Python Engine |
 | **Data Sources** | Kraken API, CoinAPI |
 
 ## 📁 Project Structure
@@ -123,9 +123,6 @@ crypto-trading-app/
 │       ├── main.py
 │       └── requirements.txt
 │
-├── quantconnect/
-│   └── backtest_strategy.py # QuantConnect algorithm
-│
 ├── config/
 │   ├── config.yaml          # App configuration
 │   └── secrets.yaml.example # API key template
@@ -135,6 +132,9 @@ crypto-trading-app/
 │   ├── test_lstm.py
 │   └── test_rebalancer.py
 │
+├── run_backtest.py          # Local backtesting engine
+├── test_auth.py             # Kraken API authentication test
+├── test_gcp.py              # Google Cloud Platform test
 └── README.md
 ```
 
@@ -269,11 +269,21 @@ python trading/rebalancer.py --live
 
 ### Running Backtests
 
-Upload `quantconnect/backtest_strategy.py` to QuantConnect and configure:
-- Start date: 2-3 years ago
-- End date: Today
-- Initial capital: $5,000
-- Brokerage: Kraken
+Run the local backtesting engine:
+
+```bash
+# Activate virtual environment
+source venv/bin/activate
+
+# Run backtest (last 90 days with weekly rebalancing)
+python run_backtest.py
+
+# Results show:
+# - Total return %
+# - Sharpe ratio
+# - Max drawdown
+# - Trade history
+```
 
 ## 🏗️ Development Roadmap
 
@@ -316,10 +326,12 @@ Upload `quantconnect/backtest_strategy.py` to QuantConnect and configure:
 - [ ] Trade recommendation generator
 - [ ] Paper trading validation
 
-### Phase 6: Backtesting 📋
-- [ ] QuantConnect strategy implementation
-- [ ] Performance analysis
-- [ ] Strategy comparison
+### Phase 6: Advanced Backtesting 📋
+- [x] Local backtesting engine created
+- [x] Baseline strategy tested (29% return, 3.35 Sharpe)
+- [ ] Extended historical backtesting (1+ year)
+- [ ] Performance analysis with ML predictions
+- [ ] Strategy optimization
 
 ### Phase 7: Cloud Deployment 📋
 - [ ] Cloud Run deployment
@@ -400,14 +412,18 @@ pytest --cov=. tests/
 
 ## 📊 Performance Metrics
 
-Backtest results will be compared against:
-- **Benchmark**: Equal-weight rebalancing strategy
-- **Metrics**:
-  - Total Return
-  - Sharpe Ratio (target: > 1.5)
-  - Maximum Drawdown (target: < 30%)
-  - Win Rate
-  - Average Trade P&L
+### Current Baseline Results (90-day backtest):
+- **Total Return**: +29.02%
+- **Sharpe Ratio**: 3.35 ✅ (Excellent!)
+- **Max Drawdown**: 5.82% ✅ (Very low)
+- **Total Trades**: 23
+- **Fees**: 0.38% of capital
+
+### ML Model Goals:
+- **Target Return**: > 32% (beat baseline by 3%+)
+- **Target Sharpe**: > 3.65 (maintain/improve)
+- **Target Drawdown**: < 6% (keep risk low)
+- **Win Rate**: > 55%
 
 ## 🤝 Contributing
 
@@ -433,7 +449,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## 🙏 Acknowledgments
 
 - [Kraken API](https://www.kraken.com/features/api) for cryptocurrency trading
-- [QuantConnect](https://www.quantconnect.com/) for backtesting framework
+- Custom Python backtesting engine with real Kraken data
 - [Streamlit](https://streamlit.io/) for rapid dashboard development
 - [TensorFlow](https://www.tensorflow.org/) for ML framework
 
@@ -452,10 +468,10 @@ Project Link: [https://github.com/yourusername/crypto-trading-app](https://githu
 ## 📚 Additional Resources
 
 - [Kraken API Documentation](https://docs.kraken.com/rest/)
-- [QuantConnect Documentation](https://www.quantconnect.com/docs/v2)
 - [LSTM for Time Series Forecasting](https://www.tensorflow.org/tutorials/structured_data/time_series)
 - [Google Cloud Run Documentation](https://cloud.google.com/run/docs)
 - [Streamlit Documentation](https://docs.streamlit.io/)
+- [Vertex AI Documentation](https://cloud.google.com/vertex-ai/docs)
 
 ---
 
