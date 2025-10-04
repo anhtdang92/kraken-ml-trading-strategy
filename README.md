@@ -1,2 +1,385 @@
-# Kraken_Cloud_ML_Strat
-Using Kraken API and Google Cloud to develop a crypto trading strategy with ML algo
+# Crypto ML Trading Dashboard
+
+A machine learning-powered cryptocurrency trading application that uses LSTM neural networks to predict price movements and automatically rebalance a crypto portfolio using the Kraken API. Built with Streamlit, TensorFlow, and Google Cloud Platform.
+
+![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)
+![GCP](https://img.shields.io/badge/Google%20Cloud-Platform-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
+## 🎯 Project Overview
+
+This application combines quantitative finance, machine learning, and automated trading to:
+- **Predict** 7-day cryptocurrency price movements using LSTM models
+- **Analyze** 4-12 major cryptocurrencies (BTC, ETH, SOL, ADA, etc.)
+- **Rebalance** portfolio weekly based on ML predictions and risk parameters
+- **Execute** trades automatically via Kraken API
+- **Display** real-time portfolio analytics and trading signals in an interactive dashboard
+- **Backtest** strategies on historical data using QuantConnect
+
+## ✨ Key Features
+
+### 📊 ML Prediction Engine
+- LSTM neural network trained on historical OHLCV data
+- 7-day prediction windows with feature engineering (MA, RSI, volume indicators)
+- Model versioning and automated weekly retraining
+- Confidence intervals and performance metrics
+
+### 💼 Intelligent Portfolio Management
+- ML-enhanced rebalancing strategy
+- Risk management: Max 40% position size, minimum $50 trades
+- Real-time portfolio tracking and valuation
+- Paper trading mode for strategy validation
+
+### 📈 Interactive Streamlit Dashboard
+- **Portfolio View**: Current holdings, values, and performance
+- **Predictions View**: ML forecasts with confidence scores and visualizations
+- **Rebalancing View**: Clear action items and trade recommendations
+- One-click trade execution with confirmations
+
+### 🔄 Cloud Automation
+- Automated weekly rebalancing via Cloud Scheduler
+- Serverless architecture on Google Cloud Run
+- Comprehensive logging to BigQuery
+- Email/Slack notifications for trade summaries
+
+### 🧪 QuantConnect Backtesting
+- Historical strategy validation (2-3 years of data)
+- Kraken-specific brokerage modeling
+- Performance metrics: Sharpe ratio, max drawdown, total return
+- ML strategy vs. equal-weight baseline comparison
+
+## 🛠️ Technical Stack
+
+| Component | Technology |
+|-----------|------------|
+| **Frontend** | Streamlit |
+| **ML Framework** | TensorFlow/Keras (LSTM) |
+| **Cloud Platform** | Google Cloud Platform |
+| **Hosting** | Cloud Run |
+| **ML Training** | Vertex AI |
+| **Database** | BigQuery |
+| **Storage** | Cloud Storage |
+| **Automation** | Cloud Scheduler, Cloud Functions |
+| **Secrets** | Secret Manager |
+| **Trading API** | Kraken API (python-kraken-sdk) |
+| **Backtesting** | QuantConnect |
+| **Data Sources** | Kraken API, CoinAPI |
+
+## 📁 Project Structure
+
+```
+crypto-trading-app/
+├── .cursorrules              # Cursor AI project rules
+├── project-context.md        # Detailed project documentation
+├── requirements.txt          # Python dependencies
+├── app.py                    # Streamlit dashboard main file
+│
+├── data/
+│   ├── data_fetcher.py      # Kraken API data collection
+│   └── bigquery_handler.py   # BigQuery read/write operations
+│
+├── ml/
+│   ├── lstm_model.py        # LSTM model architecture
+│   ├── train.py             # Model training script (Vertex AI)
+│   ├── predict.py           # Generate weekly predictions
+│   └── feature_engineering.py
+│
+├── trading/
+│   ├── kraken_client.py     # Kraken API wrapper
+│   ├── portfolio.py         # Portfolio tracking logic
+│   └── rebalancer.py        # Rebalancing calculation and execution
+│
+├── cloud_functions/
+│   └── weekly_rebalance/    # Cloud Function for automation
+│       ├── main.py
+│       └── requirements.txt
+│
+├── quantconnect/
+│   └── backtest_strategy.py # QuantConnect algorithm
+│
+├── config/
+│   ├── config.yaml          # App configuration
+│   └── secrets.yaml.example # API key template
+│
+├── tests/
+│   ├── test_data_fetcher.py
+│   ├── test_lstm.py
+│   └── test_rebalancer.py
+│
+└── README.md
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.9 or higher
+- Google Cloud Platform account with billing enabled
+- Kraken account with API keys (supports US-based trading)
+- QuantConnect account (free tier available)
+- Basic understanding of cryptocurrency trading
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/crypto-trading-app.git
+   cd crypto-trading-app
+   ```
+
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure GCP**
+   ```bash
+   gcloud auth login
+   gcloud config set project YOUR_PROJECT_ID
+   ```
+
+5. **Set up secrets**
+   ```bash
+   cp config/secrets.yaml.example config/secrets.yaml
+   # Edit secrets.yaml with your Kraken API keys
+   
+   # Upload to Secret Manager
+   gcloud secrets create kraken-api-key --data-file=config/secrets.yaml
+   ```
+
+6. **Initialize BigQuery tables**
+   ```bash
+   python data/bigquery_handler.py --init
+   ```
+
+7. **Run the dashboard**
+   ```bash
+   streamlit run app.py
+   ```
+
+### Configuration
+
+Edit `config/config.yaml` to customize:
+- Cryptocurrency symbols to trade
+- Rebalancing schedule (default: Sunday 10 PM CDT)
+- Risk parameters (max position size, minimum trade amount)
+- ML model hyperparameters
+- Initial portfolio value
+
+## 📖 Usage
+
+### Running the Dashboard
+
+```bash
+streamlit run app.py
+```
+
+Navigate to `http://localhost:8501` to access the dashboard.
+
+### Training ML Models
+
+```bash
+# Local training
+python ml/train.py --symbols BTC ETH SOL ADA --epochs 100
+
+# Vertex AI training
+python ml/train.py --use-vertex-ai --machine-type n1-standard-4
+```
+
+### Manual Rebalancing
+
+```bash
+# Paper trading (dry run)
+python trading/rebalancer.py --paper-trade
+
+# Live trading (requires confirmation)
+python trading/rebalancer.py --live
+```
+
+### Running Backtests
+
+Upload `quantconnect/backtest_strategy.py` to QuantConnect and configure:
+- Start date: 2-3 years ago
+- End date: Today
+- Initial capital: $5,000
+- Brokerage: Kraken
+
+## 🏗️ Development Roadmap
+
+### Phase 1: Data Pipeline ✅
+- [x] Kraken API data fetcher
+- [x] BigQuery schema and storage
+- [x] Automated daily data updates
+
+### Phase 2: ML Foundation 🚧
+- [ ] LSTM model architecture
+- [ ] Feature engineering pipeline
+- [ ] Local model training
+- [ ] Vertex AI integration
+
+### Phase 3: Dashboard Core 📋
+- [ ] Portfolio view with test data
+- [ ] Price charts and visualizations
+- [ ] Basic UI/UX design
+
+### Phase 4: Predictions Integration 📋
+- [ ] Display ML predictions
+- [ ] Confidence intervals
+- [ ] Model performance metrics
+
+### Phase 5: Rebalancing Logic 📋
+- [ ] Portfolio calculation engine
+- [ ] Trade recommendation generator
+- [ ] Paper trading validation
+
+### Phase 6: Backtesting 📋
+- [ ] QuantConnect strategy implementation
+- [ ] Performance analysis
+- [ ] Strategy comparison
+
+### Phase 7: Cloud Deployment 📋
+- [ ] Cloud Run deployment
+- [ ] Cloud Scheduler setup
+- [ ] Cloud Function automation
+
+### Phase 8: Live Trading 📋
+- [ ] Kraken API integration
+- [ ] Order execution
+- [ ] Trade verification
+- [ ] Production monitoring
+
+## 🧠 ML Model Architecture
+
+### LSTM Configuration
+- **Layers**: 2 LSTM layers with 50 units each
+- **Dropout**: 0.2 to prevent overfitting
+- **Input**: 7-day historical windows (OHLCV + features)
+- **Output**: Predicted 7-day return percentage
+- **Loss Function**: Mean Squared Error
+- **Optimizer**: Adam
+
+### Feature Engineering
+- Moving Averages: 7-day, 14-day, 30-day
+- Relative Strength Index (RSI)
+- Volume indicators
+- Price momentum
+- Volatility measures
+
+### Training Strategy
+- Rolling window validation
+- Weekly model retraining
+- Model versioning in Cloud Storage
+- Performance monitoring and alerting
+
+## 🔒 Security & Risk Management
+
+### API Security
+- **Never commit API keys** to version control
+- All secrets stored in Google Secret Manager
+- API key rotation every 90 days
+- Rate limit handling and retry logic
+
+### Trading Risk Controls
+- Maximum position size: 40% per cryptocurrency
+- Minimum trade amount: $50 to avoid excessive fees
+- Stop-loss mechanisms (planned)
+- Paper trading validation before live deployment
+
+### Data Security
+- Parameterized SQL queries (SQL injection prevention)
+- Encrypted data in transit and at rest
+- Audit logging for all trades
+- Regular security reviews
+
+## 💰 Cost Optimization
+
+**Target**: Run on $50 Google Cloud credit for 3-4 months
+
+- Use Cloud Run's free tier (2M requests/month)
+- Optimize BigQuery queries (avoid full table scans)
+- Schedule model training during off-peak hours
+- Use preemptible instances for Vertex AI
+- Monitor billing alerts
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest tests/
+
+# Run specific test suite
+pytest tests/test_rebalancer.py -v
+
+# Run with coverage
+pytest --cov=. tests/
+```
+
+## 📊 Performance Metrics
+
+Backtest results will be compared against:
+- **Benchmark**: Equal-weight rebalancing strategy
+- **Metrics**:
+  - Total Return
+  - Sharpe Ratio (target: > 1.5)
+  - Maximum Drawdown (target: < 30%)
+  - Win Rate
+  - Average Trade P&L
+
+## 🤝 Contributing
+
+This is a personal learning project, but suggestions and feedback are welcome!
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Code Standards
+- Follow PEP 8 style guide
+- Add comprehensive docstrings
+- Include type hints
+- Pass flake8 linting
+- Write unit tests for new features
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## 🙏 Acknowledgments
+
+- [Kraken API](https://www.kraken.com/features/api) for cryptocurrency trading
+- [QuantConnect](https://www.quantconnect.com/) for backtesting framework
+- [Streamlit](https://streamlit.io/) for rapid dashboard development
+- [TensorFlow](https://www.tensorflow.org/) for ML framework
+
+## 📧 Contact
+
+Project Link: [https://github.com/yourusername/crypto-trading-app](https://github.com/yourusername/crypto-trading-app)
+
+---
+
+## ⚠️ Disclaimer
+
+**This software is for educational purposes only. Cryptocurrency trading carries significant risk of loss. Past performance does not guarantee future results. Always conduct your own research and never invest more than you can afford to lose. The authors are not responsible for any financial losses incurred through the use of this software.**
+
+---
+
+## 📚 Additional Resources
+
+- [Kraken API Documentation](https://docs.kraken.com/rest/)
+- [QuantConnect Documentation](https://www.quantconnect.com/docs/v2)
+- [LSTM for Time Series Forecasting](https://www.tensorflow.org/tutorials/structured_data/time_series)
+- [Google Cloud Run Documentation](https://cloud.google.com/run/docs)
+- [Streamlit Documentation](https://docs.streamlit.io/)
+
+---
+
+**Built with ❤️ as a learning project | Spring, TX | 2025**

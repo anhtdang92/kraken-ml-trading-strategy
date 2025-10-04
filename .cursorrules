@@ -1,0 +1,217 @@
+# Cursor AI Rules for Crypto ML Trading Dashboard
+
+## CRITICAL RULES - ALWAYS FOLLOW
+
+### Documentation
+- Always read `project-context.md` before writing any code
+- After adding a major feature or milestone, update `project-context.md` with architecture decisions
+- Generate comprehensive docstrings for all functions following Google style
+- Include type hints in all Python code
+
+### Security
+- **NEVER** commit API keys or secrets to version control
+- All secrets must be stored in Google Secret Manager or `config/secrets.yaml` (gitignored)
+- All database queries must use parameterized statements (SQL injection prevention)
+- Validate all user inputs before processing
+- Use environment variables for configuration
+
+### Code Quality
+- Code must pass flake8 linting before considering feature complete
+- Follow PEP 8 style guide strictly
+- Maximum line length: 100 characters
+- Prioritize clarity over cleverness - code will be maintained long-term
+- Add comments explaining complex logic, especially in ML model architecture
+- Include error handling and logging for all external API calls
+
+### Testing
+- Write unit tests for all critical functions:
+  - Order calculation logic
+  - Model prediction functions
+  - Portfolio rebalancing algorithms
+  - API integration methods
+- Test coverage target: >80% for core modules
+- Always test with paper trading before live deployment
+
+### Trading Safety
+- Weekly rebalancing logic requires manual review before live trading deployment
+- Always implement paper trading mode first (validate=True)
+- Include confirmation dialogs for all trade executions
+- Log every trade to BigQuery with timestamp, symbol, quantity, price
+- Implement retry logic with exponential backoff for API calls
+- Handle rate limits gracefully (Kraken: 15 requests/minute)
+
+### ML Best Practices
+- Comment all model architecture choices (layer sizes, dropout rates, etc.)
+- Save model training history and metrics
+- Version all trained models with timestamps
+- Log hyperparameters for reproducibility
+- Use meaningful variable names in feature engineering
+
+### API Integration
+- Always include retry logic for network failures
+- Implement rate limit handling with appropriate delays
+- Validate API responses before processing
+- Log all API calls (timestamp, endpoint, status code)
+- Use python-kraken-sdk version 2.3.0+
+
+### GCP Cost Management
+- Optimize BigQuery queries to avoid full table scans
+- Use partitioned tables for historical data
+- Clean up unused Cloud Storage objects
+- Monitor billing alerts actively
+- Target: Run on $50 credit for 3-4 months
+
+## PROJECT STRUCTURE CONVENTIONS
+
+### File Organization
+- Keep modules focused: one responsibility per file
+- Place reusable utilities in dedicated utility modules
+- Separate concerns: data, ML, trading, UI layers
+- Config files in `config/`, never in code
+
+### Naming Conventions
+- Files: snake_case (e.g., `data_fetcher.py`)
+- Classes: PascalCase (e.g., `KrakenClient`)
+- Functions/variables: snake_case (e.g., `calculate_portfolio_value`)
+- Constants: UPPER_CASE (e.g., `MAX_POSITION_SIZE`)
+- Private methods: prefix with underscore (e.g., `_validate_order`)
+
+### Import Order
+1. Standard library imports
+2. Third-party imports (tensorflow, pandas, etc.)
+3. Local application imports
+4. Separate groups with blank line
+
+## DEVELOPMENT WORKFLOW
+
+### Before Starting New Features
+1. Read relevant sections of `project-context.md`
+2. Check if similar functionality exists elsewhere
+3. Review related test files
+4. Plan the implementation approach
+
+### When Writing Code
+1. Start with function signature and docstring
+2. Implement core logic
+3. Add error handling
+4. Add logging statements
+5. Write unit tests
+6. Run linter (flake8)
+7. Update `project-context.md` if architecture changed
+
+### Code Review Checklist
+- [ ] Docstrings present for all public functions
+- [ ] Type hints included
+- [ ] Error handling implemented
+- [ ] Logging added for important operations
+- [ ] No hardcoded credentials or secrets
+- [ ] Unit tests written and passing
+- [ ] Flake8 passes without warnings
+- [ ] Manual testing completed
+
+## SPECIFIC IMPLEMENTATION GUIDELINES
+
+### Data Fetching
+- Always validate data before storing in BigQuery
+- Handle missing data gracefully (fill forward, interpolate)
+- Log data quality issues
+- Use pagination for large historical data fetches
+
+### ML Model Training
+- Save training/validation loss curves
+- Log all hyperparameters to BigQuery
+- Use early stopping to prevent overfitting
+- Validate model performance before deploying
+- Store model metadata (training date, data range, metrics)
+
+### Portfolio Rebalancing
+- Calculate exact buy/sell amounts accounting for fees
+- Verify sufficient balance before placing orders
+- Round quantities to exchange precision requirements
+- Log rebalancing decisions even in paper trading mode
+- Include human-readable explanations for each trade
+
+### Streamlit Dashboard
+- Cache expensive operations with @st.cache_data
+- Show loading spinners for long operations
+- Display error messages user-friendly (not raw stack traces)
+- Include refresh buttons for real-time data
+- Make critical actions (trade execution) require confirmation
+
+### QuantConnect Integration
+- Follow QuantConnect best practices for algorithm structure
+- Use realistic fee models (Kraken: 0.16% maker, 0.26% taker)
+- Log backtest results to local JSON for comparison
+- Document any deviations from live trading logic
+
+## ERROR HANDLING PATTERNS
+
+### API Calls
+```python
+import time
+from typing import Optional
+
+def call_kraken_api(endpoint: str, retries: int = 3) -> Optional[dict]:
+    """Call Kraken API with retry logic."""
+    for attempt in range(retries):
+        try:
+            response = kraken_client.request(endpoint)
+            return response
+        except RateLimitError:
+            time.sleep(60)  # Wait 1 minute
+        except NetworkError as e:
+            logger.warning(f"Network error on attempt {attempt + 1}: {e}")
+            time.sleep(2 ** attempt)  # Exponential backoff
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return None
+    return None
+```
+
+### Database Operations
+```python
+def query_bigquery(query: str, params: dict) -> pd.DataFrame:
+    """Execute parameterized BigQuery query."""
+    try:
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter(k, "STRING", v)
+                for k, v in params.items()
+            ]
+        )
+        df = client.query(query, job_config=job_config).to_dataframe()
+        logger.info(f"Query returned {len(df)} rows")
+        return df
+    except Exception as e:
+        logger.error(f"BigQuery error: {e}")
+        raise
+```
+
+## CLARIFICATION PROTOCOL
+
+If requirements are ambiguous:
+1. Check `project-context.md` for prior decisions
+2. Look for similar implementations in codebase
+3. If still unclear, ask specific clarifying questions
+4. Document the decision in code comments
+
+## INTERACTION STYLE
+
+- Provide code snippets, not just instructions
+- Explain "why" for non-obvious design choices
+- Suggest improvements proactively
+- Warn about potential pitfalls (e.g., rate limits, data quality issues)
+- Be explicit about trade-offs
+
+## BUDGET CONSCIOUSNESS
+
+- Optimize for minimal cloud costs
+- Use Cloud Run free tier where possible
+- Batch operations to reduce BigQuery queries
+- Cache results when appropriate
+- Suggest cost-effective alternatives
+
+---
+
+**Remember: This project handles real money. Prioritize correctness, safety, and clarity over speed of development.**
+
