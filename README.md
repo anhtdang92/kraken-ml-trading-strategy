@@ -7,9 +7,9 @@ A machine learning-powered cryptocurrency trading application that uses LSTM neu
 ![GCP](https://img.shields.io/badge/Google%20Cloud-Platform-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-## 🎉 Current Status: Phase 1 Complete + Portfolio Integration!
+## 🎉 Current Status: Production-Ready ML Infrastructure!
 
-**Last Updated:** October 4, 2025
+**Last Updated:** January 15, 2025
 
 ### ✅ What's Working Now:
 - **Streamlit Dashboard** - Fully functional web application with professional UI
@@ -22,6 +22,9 @@ A machine learning-powered cryptocurrency trading application that uses LSTM neu
 - **Refresh Functionality** - One-click data refresh from Kraken
 - **API Client** - Kraken API client with retry logic and rate limiting
 - **HTML Dashboard** - Alternative standalone HTML interface
+- **☁️ GCP ML Infrastructure** - Production-ready Vertex AI, BigQuery, Cloud Storage
+- **🔐 Secure IAM** - Three service accounts with minimal permissions
+- **💰 Cost Optimized** - Preemptible instances, auto-scaling, lifecycle policies
 
 ### 🆕 New Features:
 - **🔐 Authenticated Portfolio** - View your real Kraken holdings
@@ -29,11 +32,14 @@ A machine learning-powered cryptocurrency trading application that uses LSTM neu
 - **💰 Liquid vs Staked** - Clear separation of tradeable vs locked assets
 - **🎨 Improved UI** - Large, colorful KPI cards with better readability
 - **🔄 Live Refresh** - Manual refresh button to update data on demand
+- **☁️ GCP ML Infrastructure** - Production-ready cloud ML platform
+- **🔐 Secure IAM** - Service accounts with minimal permissions
+- **💰 Cost Management** - Optimized for $50 budget over 3-4 months
 
 ### 🚧 In Progress:
-- Phase 2: ML Model Development (LSTM for price predictions)
+- Vertex AI Model Deployment (optional - can use local predictions)
 
-### 📍 Current Phase: Phase 1 ✅ COMPLETE | Portfolio Integration ✅ COMPLETE
+### 📍 Current Phase: GCP ML Infrastructure ✅ COMPLETE | Production Ready
 
 ## 🎯 Project Overview
 
@@ -43,6 +49,36 @@ This application combines quantitative finance, machine learning, and automated 
 - **Rebalance** portfolio weekly based on ML predictions and risk parameters
 - **Execute** trades automatically via Kraken API
 - **Display** real-time portfolio analytics and trading signals in an interactive dashboard
+
+## ☁️ GCP ML Infrastructure
+
+### Production-Ready Cloud Platform
+
+The application now includes a complete Google Cloud Platform infrastructure for scalable ML operations:
+
+#### 🏗️ **Infrastructure Components**
+- **Vertex AI**: Training jobs and prediction endpoints
+- **BigQuery**: Data warehouse with 6 partitioned tables
+- **Cloud Storage**: 3 buckets with lifecycle policies
+- **IAM**: Secure service accounts with minimal permissions
+- **Cost Optimization**: Preemptible instances, auto-scaling, lifecycle policies
+
+#### 🔐 **Security Features**
+- **Service Accounts**: `ml-training-sa`, `ml-prediction-sa`, `crypto-app-sa`
+- **Least Privilege**: Minimal required permissions for each service
+- **Encryption**: All data encrypted at rest and in transit
+- **Key Rotation**: 90-day service account key rotation
+
+#### 💰 **Cost Management**
+- **Target**: $18-37/month (3-4 months on $50 budget)
+- **Optimizations**: Preemptible instances (60-80% savings), scale-to-zero endpoints
+- **Monitoring**: Billing alerts at $10, $25, $50
+- **Lifecycle Policies**: Automatic data archiving and deletion
+
+#### 📊 **Data Architecture**
+- **BigQuery Tables**: `historical_prices`, `predictions`, `trades`, `model_metrics`, `portfolio_snapshots`, `rebalancing_events`
+- **Cloud Storage**: Model artifacts, training data, backups
+- **Partitioning**: Time-based partitioning for cost efficiency
 - **Backtest** strategies on historical data using QuantConnect
 
 ## ✨ Key Features

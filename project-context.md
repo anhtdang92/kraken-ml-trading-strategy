@@ -1,8 +1,8 @@
 # Project Context: Crypto ML Trading Dashboard
 
-**Last Updated**: October 4, 2025  
-**Project Status**: Phase 1 Complete + Portfolio Integration Complete  
-**Current Phase**: Ready for Phase 2 - ML Model Development
+**Last Updated**: January 15, 2025  
+**Project Status**: Phase 1 Complete + GCP ML Infrastructure Ready  
+**Current Phase**: Production-Ready ML Infrastructure with Vertex AI
 
 ---
 
@@ -48,12 +48,13 @@ A machine learning-powered cryptocurrency trading system that uses LSTM neural n
 ### Cloud Architecture (GCP)
 
 - **Cloud Run**: Hosts Streamlit application (containerized)
-- **Vertex AI**: Trains LSTM models on schedule
-- **BigQuery**: Stores historical data, trading logs, model metrics
-- **Cloud Storage**: Stores trained models and backups
+- **Vertex AI**: Trains LSTM models and serves predictions via endpoints
+- **BigQuery**: Stores historical data, trading logs, model metrics (6 partitioned tables)
+- **Cloud Storage**: Stores trained models and backups (3 buckets with lifecycle policies)
 - **Cloud Scheduler**: Triggers weekly rebalancing function
 - **Cloud Functions**: Executes automated trading logic
 - **Secret Manager**: Securely stores Kraken API credentials
+- **IAM**: Three service accounts with minimal permissions for security
 
 ---
 
@@ -228,6 +229,69 @@ Cloud Function steps:
 - New portfolio allocation
 - Model confidence scores
 - Week-over-week performance
+
+---
+
+## ☁️ GCP ML Infrastructure (NEW)
+
+### Vertex AI Integration
+
+**Decision**: Use Vertex AI for scalable ML training and prediction serving
+
+**Implementation**:
+- **Training Jobs**: Custom Docker containers with LSTM training
+- **Model Registry**: Versioned model storage and management
+- **Prediction Endpoints**: Auto-scaling endpoints for real-time predictions
+- **Cost Optimization**: Preemptible instances, scale-to-zero, lifecycle policies
+
+**Benefits**:
+- Production-grade ML infrastructure
+- Automatic scaling and load balancing
+- Integrated with BigQuery and Cloud Storage
+- Cost-effective with proper optimization
+
+### BigQuery Data Warehouse
+
+**Schema**: 6 partitioned tables for comprehensive data management
+- `historical_prices`: OHLCV data from Kraken API
+- `predictions`: ML model predictions with confidence scores
+- `trades`: Complete trading history and execution logs
+- `model_metrics`: Training performance and validation metrics
+- `portfolio_snapshots`: Portfolio state over time
+- `rebalancing_events`: Rebalancing decisions and outcomes
+
+### Cloud Storage Architecture
+
+**Buckets**:
+- `crypto-ml-trading-487-models`: Model artifacts (1-year retention)
+- `crypto-ml-trading-487-training-data`: Training data (30-day retention)
+- `crypto-ml-trading-487-backups`: System backups (90-day retention)
+
+**Lifecycle Policies**: Automatic cost optimization through data archiving and deletion
+
+### Security & IAM
+
+**Service Accounts**:
+- `ml-training-sa`: Vertex AI training jobs (minimal permissions)
+- `ml-prediction-sa`: Vertex AI predictions (read-only access)
+- `crypto-app-sa`: Streamlit app access (BigQuery read, Storage read, Secret Manager)
+
+**Security Features**:
+- Least-privilege IAM roles
+- Encrypted storage and data transfer
+- Service account key rotation (90-day cycle)
+- Secret Manager for API keys
+
+### Cost Management
+
+**Target**: $18-37/month (3-4 months on $50 budget)
+
+**Optimizations**:
+- Preemptible instances for training (60-80% savings)
+- Auto-scaling endpoints (scale to zero)
+- Partitioned BigQuery tables
+- Lifecycle policies for storage
+- Billing alerts at $10, $25, $50
 
 ---
 

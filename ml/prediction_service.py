@@ -46,16 +46,17 @@ class PredictionService:
     This service orchestrates the entire ML pipeline:
     1. Data Collection: Fetch recent data from Kraken
     2. Feature Engineering: Create technical indicators
-    3. Model Prediction: Generate forecasts using LSTM
+    3. Model Prediction: Generate forecasts using LSTM or Vertex AI
     4. Confidence Scoring: Assess prediction reliability
     """
     
-    def __init__(self, models_dir: str = "models"):
+    def __init__(self, models_dir: str = "models", provider: str = "local"):
         """
         Initialize prediction service.
         
         Args:
             models_dir: Directory to store/load trained models
+            provider: Prediction provider ('local' or 'vertex')
         """
         self.models_dir = Path(models_dir)
         self.models_dir.mkdir(exist_ok=True)
@@ -71,9 +72,46 @@ class PredictionService:
         # Supported symbols
         self.symbols = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP']
         
-        logger.info("🧠 Prediction Service initialized")
+        # Provider configuration
+        self.provider = provider
+        self.vertex_service = None
+        
+        # Initialize Vertex AI if requested
+        if provider == "vertex":
+            self._init_vertex_ai()
+        
+        logger.info("◈ Prediction Service initialized")
         logger.info(f"   Models directory: {self.models_dir}")
+        logger.info(f"   Provider: {provider}")
         logger.info(f"   Supported symbols: {', '.join(self.symbols)}")
+    
+    def _init_vertex_ai(self):
+        """Initialize Vertex AI prediction service."""
+        try:
+            from gcp.deployment.vertex_prediction_service import VertexPredictionService
+            
+            # Get configuration from environment or config
+            project_id = os.getenv('GOOGLE_CLOUD_PROJECT', 'crypto-ml-trading-487')
+            region = os.getenv('GCP_REGION', 'us-central1')
+            endpoint_id = os.getenv('VERTEX_ENDPOINT_ID', '')
+            
+            if endpoint_id:
+                self.vertex_service = VertexPredictionService(
+                    project_id=project_id,
+                    region=region,
+                    endpoint_id=endpoint_id
+                )
+                logger.info("◊ Vertex AI service initialized")
+            else:
+                logger.warning("◊ Vertex AI endpoint ID not configured, falling back to local")
+                self.provider = "local"
+                
+        except ImportError:
+            logger.warning("◊ Vertex AI dependencies not available, falling back to local")
+            self.provider = "local"
+        except Exception as e:
+            logger.warning(f"◊ Vertex AI initialization failed: {e}, falling back to local")
+            self.provider = "local"
     
     def get_prediction(
         self,
@@ -103,7 +141,11 @@ class PredictionService:
                 'status': 'success'
             }
         """
-        logger.info(f"🔮 Generating prediction for {symbol} ({days_ahead} days ahead)")
+        logger.info(f"◊ Generating prediction for {symbol} ({days_ahead} days ahead)")
+        
+        # Use Vertex AI if available
+        if self.provider == "vertex" and self.vertex_service:
+            return self._get_vertex_prediction(symbol, days_ahead)
         
         # For now, always use mock predictions since TensorFlow is not available
         if not HAS_LSTM:
@@ -365,6 +407,40 @@ class PredictionService:
         except Exception as e:
             logger.error(f"Error loading model for {symbol}: {e}")
             return None
+    
+    def _get_vertex_prediction(self, symbol: str, days_ahead: int) -> Dict:
+        """Get prediction using Vertex AI endpoint."""
+        try:
+            logger.info(f"◊ Using Vertex AI for {symbol} prediction")
+            
+            # Get prediction from Vertex AI
+            prediction = self.vertex_service.predict_single(symbol, days_ahead)
+            
+            if 'error' in prediction:
+                logger.warning(f"◊ Vertex AI prediction failed for {symbol}: {prediction['error']}")
+                return self._create_mock_prediction(symbol, days_ahead)
+            
+            # Convert to standard format
+            result = {
+                'symbol': symbol,
+                'current_price': prediction['current_price'],
+                'predicted_price': prediction['predicted_price'],
+                'predicted_return': prediction['price_change'] / 100,  # Convert percentage to decimal
+                'confidence': prediction['confidence'],
+                'prediction_date': prediction['timestamp'].strftime('%Y-%m-%d'),
+                'model_version': prediction['model_version'],
+                'features_used': ['vertex_ai_features'],
+                'status': 'success',
+                'data_points': 0,
+                'provider': 'vertex_ai'
+            }
+            
+            logger.info(f"◊ Vertex AI prediction for {symbol}: {result['predicted_return']*100:+.2f}% return")
+            return result
+            
+        except Exception as e:
+            logger.error(f"◊ Vertex AI prediction error for {symbol}: {e}")
+            return self._create_mock_prediction(symbol, days_ahead)
     
     def _create_mock_prediction(self, symbol: str, days_ahead: int) -> Dict:
         """Create mock prediction when model is not available."""

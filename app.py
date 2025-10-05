@@ -14,8 +14,8 @@ import time
 
 # Page configuration
 st.set_page_config(
-    page_title="Crypto ML Trading Dashboard",
-    page_icon="◈",
+    page_title="NOVA • Crypto ML Console",
+    page_icon="◉",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -119,7 +119,7 @@ def show_header():
     col1, col2, col3 = st.columns([2, 3, 2])
     
     with col2:
-        st.title("◈ Crypto ML Trading Dashboard")
+        st.title("NOVA • Crypto ML Console")
         st.markdown("*Powered by Machine Learning & Kraken API*")
     
     with col3:
@@ -1482,7 +1482,7 @@ def main():
             margin: 0 0 15px 0;
             font-size: 24px;
             font-weight: bold;
-        '>◈ Crypto ML Dashboard</h2>
+        '>NOVA • Crypto ML Console</h2>
         <p style='
             color: #888;
             text-align: center;
@@ -1627,7 +1627,7 @@ def main():
         padding: 15px;
         margin: 10px 0;
     '>
-        <div style='color: #45b7d1; font-weight: bold; margin-bottom: 10px;'>◈ Crypto ML Dashboard</div>
+        <div style='color: #45b7d1; font-weight: bold; margin-bottom: 10px;'>NOVA • Crypto ML Console</div>
         <div style='color: #888; font-size: 12px; margin-bottom: 5px;'><strong>Version:</strong> 1.0.0</div>
         <div style='color: #888; font-size: 12px; margin-bottom: 5px;'><strong>Mode:</strong> Development</div>
         <div style='color: #888; font-size: 12px; margin-bottom: 5px;'><strong>Data Source:</strong> Kraken API</div>
@@ -1700,7 +1700,7 @@ def main():
             margin: 0 0 10px 0;
             font-size: 32px;
             font-weight: bold;
-        '>◈ {page}</h1>
+        '>{page}</h1>
         <p style='
             color: #888;
             margin: 0;

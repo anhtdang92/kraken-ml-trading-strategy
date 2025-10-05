@@ -1,0 +1,134 @@
+# Google Cloud Platform Configuration
+# This file contains GCP-specific settings for ML predictions
+
+# Project settings
+project:
+  id: "crypto-ml-trading-487"
+  region: "us-central1"
+  zone: "us-central1-a"
+
+# Vertex AI settings
+vertex_ai:
+  # Training configuration
+  training:
+    machine_type: "n1-standard-4"
+    accelerator_type: "NVIDIA_TESLA_T4"
+    accelerator_count: 1
+    use_preemptible: true  # Save costs
+    
+  # Prediction endpoint configuration
+  endpoint:
+    machine_type: "n1-standard-2"
+    min_replica_count: 0  # Scale to zero when not in use
+    max_replica_count: 3
+    autoscaling: true
+    
+  # Model registry
+  model_registry:
+    model_name: "crypto-lstm-model"
+    model_version: "v1"
+    container_image: "gcr.io/crypto-ml-trading-487/crypto-lstm-prediction:latest"
+
+# BigQuery settings
+bigquery:
+  dataset: "crypto_data"
+  location: "US"
+  
+  # Tables
+  tables:
+    historical_prices: "historical_prices"
+    predictions: "predictions"
+    trades: "trades"
+    model_metrics: "model_metrics"
+    portfolio_snapshots: "portfolio_snapshots"
+    rebalancing_events: "rebalancing_events"
+
+# Cloud Storage settings
+storage:
+  # Buckets
+  models_bucket: "crypto-ml-models-487"
+  training_data_bucket: "crypto-ml-training-data-487"
+  backups_bucket: "crypto-ml-backups-487"
+  
+  # Lifecycle policies
+  lifecycle:
+    models_retention_days: 365
+    training_data_retention_days: 30
+    backups_retention_days: 90
+
+# Service accounts
+service_accounts:
+  ml_training: "ml-training-sa@crypto-ml-trading-487.iam.gserviceaccount.com"
+  ml_prediction: "ml-prediction-sa@crypto-ml-trading-487.iam.gserviceaccount.com"
+  crypto_app: "crypto-app-sa@crypto-ml-trading-487.iam.gserviceaccount.com"
+
+# Cost optimization
+cost_optimization:
+  # Use preemptible instances for training
+  use_preemptible: true
+  
+  # Scale endpoints to zero when not in use
+  scale_to_zero: true
+  
+  # Use regional persistent disks (cheaper)
+  use_regional_pd: true
+  
+  # Set up billing alerts
+  billing_alerts:
+    - amount: 10
+      currency: "USD"
+    - amount: 25
+      currency: "USD"
+    - amount: 50
+      currency: "USD"
+
+# Monitoring and logging
+monitoring:
+  # Cloud Logging
+  log_level: "INFO"
+  log_to_bigquery: true
+  
+  # Cloud Monitoring
+  create_dashboards: true
+  alert_on_errors: true
+  
+  # Metrics to track
+  metrics:
+    - "prediction_latency"
+    - "prediction_accuracy"
+    - "model_confidence"
+    - "endpoint_utilization"
+    - "cost_per_prediction"
+
+# Security settings
+security:
+  # Encryption
+  encryption_key: "projects/crypto-ml-trading-487/locations/us-central1/keyRings/crypto-ml-keyring/cryptoKeys/crypto-ml-key"
+  
+  # IAM
+  least_privilege: true
+  
+  # Network
+  vpc_connector: false  # Use default VPC for now
+  
+  # Secrets
+  use_secret_manager: true
+  rotate_keys_days: 90
+
+# Deployment settings
+deployment:
+  # Container registry
+  container_registry: "gcr.io"
+  
+  # Docker images
+  images:
+    training: "gcr.io/crypto-ml-trading-487/crypto-lstm-training:latest"
+    prediction: "gcr.io/crypto-ml-trading-487/crypto-lstm-prediction:latest"
+  
+  # Environment variables
+  env_vars:
+    GOOGLE_CLOUD_PROJECT: "crypto-ml-trading-487"
+    GCP_REGION: "us-central1"
+    VERTEX_ENDPOINT_ID: ""  # Will be set after endpoint creation
+    BIGQUERY_DATASET: "crypto_data"
+    STORAGE_BUCKET: "crypto-ml-models-487"

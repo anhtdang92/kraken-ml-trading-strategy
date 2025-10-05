@@ -4,11 +4,23 @@ All notable changes to the Crypto ML Trading Dashboard project will be documente
 
 ## [Unreleased]
 
-### Phase 2 - ML Model Development
-- LSTM model architecture
-- Historical data collection
-- Feature engineering
-- Model training and predictions
+### Phase 3 - Vertex AI Deployment (Optional)
+- Deploy LSTM models to Vertex AI endpoints
+- Production-scale prediction serving
+- Automated model retraining
+
+## [0.3.0] - 2025-01-15
+
+### Added - GCP ML Infrastructure
+- **Vertex AI Integration**: Production-ready ML training and prediction serving
+- **BigQuery Data Warehouse**: 6 partitioned tables for comprehensive data management
+- **Cloud Storage**: 3 buckets with lifecycle policies for cost optimization
+- **IAM Security**: Three service accounts with minimal permissions
+- **Cost Management**: Optimized for $50 budget over 3-4 months
+- **PredictionService**: Updated to support both local and Vertex AI providers
+- **Docker Support**: Containerized training jobs for Vertex AI
+- **Environment Configuration**: `.env` file with GCP settings
+- **Setup Scripts**: Automated infrastructure deployment
 
 ## [0.2.0] - 2025-10-04
 

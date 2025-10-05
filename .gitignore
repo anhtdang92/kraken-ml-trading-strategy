@@ -90,3 +90,7 @@ Desktop.ini
 temp/
 tmp/
 
+
+# GCP Service Account Keys
+config/keys/
+.env
