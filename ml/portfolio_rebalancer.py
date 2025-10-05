@@ -173,7 +173,7 @@ class PortfolioRebalancer:
         target_allocation = self._apply_risk_controls(target_allocation)
         
         self.target_portfolio = target_allocation
-        logger.info("🎯 Target allocation calculated")
+        logger.info("Target allocation calculated")
         return self.target_portfolio
     
     def _calculate_ml_enhanced_allocation(self) -> Dict[str, float]:

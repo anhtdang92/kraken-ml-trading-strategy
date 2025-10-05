@@ -525,32 +525,32 @@ def show_live_prices():
     
     # Create 2 rows of 3 cards each
     for row in range(2):
-    cols = st.columns(3)
+        cols = st.columns(3)
         for col_idx in range(3):
             crypto_idx = row * 3 + col_idx
             if crypto_idx >= len(cryptos):
                 break
-    
+
             pair = list(cryptos.keys())[crypto_idx]
             info = cryptos[pair]
-            
-        # Find matching ticker data
-        matching_key = [k for k in ticker_data.keys() if pair in k or k in pair]
-        
-        if not matching_key:
-            continue
-        
-        data = ticker_data[matching_key[0]]
-        current_price = float(data['c'][0])
-        day_high = float(data['h'][1])
-        day_low = float(data['l'][1])
-        volume = float(data['v'][1])
-        open_price = float(data['o'])
-        
-        price_change = ((current_price - open_price) / open_price) * 100
+
+            # Find matching ticker data
+            matching_key = [k for k in ticker_data.keys() if pair in k or k in pair]
+
+            if not matching_key:
+                continue
+
+            data = ticker_data[matching_key[0]]
+            current_price = float(data['c'][0])
+            day_high = float(data['h'][1])
+            day_low = float(data['l'][1])
+            volume = float(data['v'][1])
+            open_price = float(data['o'])
+
+            price_change = ((current_price - open_price) / open_price) * 100
             change_color = "#00ff00" if price_change >= 0 else "#ff4444"
             change_symbol = "◈" if price_change >= 0 else "◊"
-            
+
             with cols[col_idx]:
                 st.markdown(f"""
                 <div style='background-color: #0e1117; padding: 20px; border-radius: 10px; border: 2px solid {info['color']}; margin-bottom: 15px;'>
@@ -580,7 +580,7 @@ def show_live_prices():
     col1, col2, col3 = st.columns([2, 1, 1])
     
     with col1:
-    selected_crypto = st.selectbox(
+        selected_crypto = st.selectbox(
         "Select cryptocurrency:",
         options=list(cryptos.keys()),
         format_func=lambda x: f"{cryptos[x]['icon']} {cryptos[x]['name']} ({cryptos[x]['symbol']})"
@@ -615,7 +615,7 @@ def show_live_prices():
         
         # Create chart based on selection
         if chart_type == "Candlestick":
-        fig = go.Figure(data=[go.Candlestick(
+            fig = go.Figure(data=[go.Candlestick(
             x=df['timestamp'],
             open=df['open'],
             high=df['high'],
@@ -911,7 +911,7 @@ def show_predictions():
     col1, col2 = st.columns([2, 1])
     
     with col1:
-    st.markdown("""
+        st.markdown("""
         **Train Custom Models:**
         
         - **LSTM Architecture**: 2-layer neural network with 50 units each
@@ -988,7 +988,7 @@ def show_predictions():
     model_status = []
     for symbol in ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP']:
         has_model = prediction_service._has_model(symbol)
-    status = "◉ Trained" if has_model else "◊ Not Trained"
+        status = "◉ Trained" if has_model else "◊ Not Trained"
         model_status.append({
             'Symbol': symbol,
             'Status': status,
@@ -1200,7 +1200,7 @@ def show_rebalancing():
         st.plotly_chart(fig_current, use_container_width=True)
     
     with col2:
-        st.markdown("#### 🎯 Target Allocation")
+        st.markdown("#### ◈ Target Allocation")
         target_df = pd.DataFrame([
             {'Symbol': symbol, 'Weight': weight*100}
             for symbol, weight in summary['target_allocation'].items()
@@ -1302,15 +1302,15 @@ def show_rebalancing():
     
     # Strategy information
     with st.expander("◈ Rebalancing Strategy Details"):
-    st.markdown("""
+        st.markdown("""
         **Strategy Overview:**
     
         1. **Base Strategy**: Equal-weight allocation (16.67% each for 6 coins)
-    2. **ML Enhancement**: Adjust weights based on predicted returns
-    3. **Risk Controls**: 
-        - Max 40% per position
-        - Min 10% per position
-        - Min $50 trade size
+        2. **ML Enhancement**: Adjust weights based on predicted returns
+        3. **Risk Controls**: 
+           - Max 40% per position
+           - Min 10% per position
+           - Min $50 trade size
         4. **Trading Fees**: 0.16% maker fee (Kraken)
         
         **How It Works:**
@@ -1700,7 +1700,7 @@ def main():
             margin: 0 0 10px 0;
             font-size: 32px;
             font-weight: bold;
-        '>🎯 {page}</h1>
+        '>◈ {page}</h1>
         <p style='
             color: #888;
             margin: 0;
