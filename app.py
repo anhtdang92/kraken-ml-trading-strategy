@@ -15,7 +15,7 @@ import time
 # Page configuration
 st.set_page_config(
     page_title="Crypto ML Trading Dashboard",
-    page_icon="🚀",
+    page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -119,7 +119,7 @@ def show_header():
     col1, col2, col3 = st.columns([2, 3, 2])
     
     with col2:
-        st.title("🚀 Crypto ML Trading Dashboard")
+        st.title("◈ Crypto ML Trading Dashboard")
         st.markdown("*Powered by Machine Learning & Kraken API*")
     
     with col3:
@@ -132,7 +132,7 @@ def show_portfolio_view():
     with col1:
         st.header("💼 Portfolio Overview")
     with col2:
-        if st.button("🔄 Refresh Data", use_container_width=True):
+        if st.button("◐ Refresh Data", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
     
@@ -140,7 +140,7 @@ def show_portfolio_view():
     try:
         from data.kraken_auth import KrakenAuthClient
         
-        with st.spinner("🔄 Fetching your portfolio from Kraken..."):
+        with st.spinner("◐ Fetching your portfolio from Kraken..."):
             client = KrakenAuthClient()
             balance = client.get_account_balance()
             
@@ -211,18 +211,18 @@ def show_portfolio_view():
                         else:
                             target_dict[clean_asset]['quantity'] += qty
                 
-                st.success("✅ Connected to your Kraken account!")
+                st.success("◉ Connected to your Kraken account!")
             else:
-                st.warning("⚠️ Could not fetch portfolio. Using demo data.")
+                st.warning("◊ Could not fetch portfolio. Using demo data.")
                 portfolio_data = _get_demo_portfolio()
                 
     except Exception as e:
-        st.warning(f"⚠️ Could not connect to Kraken: {e}. Using demo data.")
+        st.warning(f"◊ Could not connect to Kraken: {e}. Using demo data.")
         portfolio_data = _get_demo_portfolio()
     
     # If no holdings, show demo
     if not portfolio_data:
-        st.info("📝 No holdings found. Add some crypto to your Kraken account or using demo data.")
+        st.info("◐ No holdings found. Add some crypto to your Kraken account or using demo data.")
         portfolio_data = _get_demo_portfolio()
     
     # Fetch live prices for all holdings
@@ -320,13 +320,13 @@ def show_portfolio_view():
         staked_data = {}
     
     # Display key metrics with better styling
-    st.markdown("### 📊 Portfolio Summary")
+    st.markdown("### ◉ Portfolio Summary")
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.markdown(f"""
         <div style='background-color: #0e1117; padding: 20px; border-radius: 10px; border: 2px solid #1f77b4;'>
-            <h4 style='color: #1f77b4; margin: 0;'>💰 Total Value</h4>
+            <h4 style='color: #1f77b4; margin: 0;'>◉ Total Value</h4>
             <h1 style='color: white; margin: 10px 0;'>${total_value:,.4f}</h1>
             <p style='color: #888; margin: 0; font-size: 14px;'>Current portfolio value</p>
         </div>
@@ -334,7 +334,7 @@ def show_portfolio_view():
     
     with col2:
         pnl_color = "#00ff00" if total_pnl >= 0 else "#ff4444"
-        pnl_symbol = "📈" if total_pnl >= 0 else "📉"
+        pnl_symbol = "◈" if total_pnl >= 0 else "◊"
         st.markdown(f"""
         <div style='background-color: #0e1117; padding: 20px; border-radius: 10px; border: 2px solid {pnl_color};'>
             <h4 style='color: {pnl_color}; margin: 0;'>{pnl_symbol} Total P&L</h4>
@@ -365,7 +365,7 @@ def show_portfolio_view():
     st.markdown("---")
     
     # Holdings table with better formatting
-    st.markdown("### 📋 Current Holdings")
+    st.markdown("### ◊ Current Holdings")
     
     if holdings:
         holdings_df = pd.DataFrame(holdings)
@@ -393,8 +393,8 @@ def show_portfolio_view():
     # Staked Assets Section
     if staked_data:
         st.markdown("---")
-        st.markdown("### 🔒 Staked & Bonded Assets")
-        st.info("💰 **These assets are earning staking rewards!** They're locked but still yours and generating passive income.")
+        st.markdown("### ◐ Staked & Bonded Assets")
+        st.info("◉ **These assets are earning staking rewards!** They're locked but still yours and generating passive income.")
         
         staked_holdings = []
         total_staked_value = 0
@@ -446,7 +446,7 @@ def show_portfolio_view():
                 - **Locked**: Can't trade immediately, but it's still yours!
                 
                 **Benefits:**
-                - 📈 Earn passive income (APY varies by asset)
+                - ◈ Earn passive income (APY varies by asset)
                 - 🔒 Helps secure the blockchain network
                 - 💎 Encourages long-term holding
                 
@@ -456,7 +456,7 @@ def show_portfolio_view():
         st.info("No holdings to display")
     
     # Portfolio allocation pie chart
-    st.markdown("### 📊 Portfolio Allocation")
+    st.markdown("### ◉ Portfolio Allocation")
     
     allocation_data = pd.DataFrame([
         {'Symbol': symbol, 'Value': data['quantity'] * data['current_price']}
@@ -486,16 +486,16 @@ def show_portfolio_view():
         st.plotly_chart(fig, width='stretch')
     
     # Status info
-    st.success("✅ **Connected to Kraken** - Your portfolio is live and updating with real-time prices!")
+    st.success("◉ **Connected to Kraken** - Your portfolio is live and updating with real-time prices!")
 
 
 def show_live_prices():
     """Display live cryptocurrency prices with charts."""
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.header("📈 Live Cryptocurrency Prices")
+        st.header("◈ Live Cryptocurrency Prices")
     with col2:
-        if st.button("🔄 Refresh Prices", use_container_width=True):
+        if st.button("◐ Refresh Prices", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
     
@@ -521,7 +521,7 @@ def show_live_prices():
     st.caption(f"🕒 Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
     
     # Display price cards with portfolio-style design
-    st.markdown("### 💰 Market Overview")
+    st.markdown("### ◉ Market Overview")
     
     # Create 2 rows of 3 cards each
     for row in range(2):
@@ -549,7 +549,7 @@ def show_live_prices():
             
             price_change = ((current_price - open_price) / open_price) * 100
             change_color = "#00ff00" if price_change >= 0 else "#ff4444"
-            change_symbol = "📈" if price_change >= 0 else "📉"
+            change_symbol = "◈" if price_change >= 0 else "◊"
             
             with cols[col_idx]:
                 st.markdown(f"""
@@ -574,7 +574,7 @@ def show_live_prices():
     st.markdown("---")
     
     # Price chart section with portfolio-style header
-    st.markdown("### 📊 Interactive Price Charts")
+    st.markdown("### ◉ Interactive Price Charts")
     
     # Chart controls in a nice layout
     col1, col2, col3 = st.columns([2, 1, 1])
@@ -672,7 +672,7 @@ def show_live_prices():
         st.plotly_chart(fig_volume, width='stretch')
         
         # Market stats in portfolio-style cards
-        st.markdown("### 📈 Market Statistics")
+        st.markdown("### ◈ Market Statistics")
         
         current_price = df['close'].iloc[-1]
         price_24h_ago = df['close'].iloc[-2] if len(df) > 1 else current_price
@@ -724,9 +724,9 @@ def show_predictions():
     """Display ML predictions with real-time data and model training."""
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.header("🧠 ML Price Predictions")
+        st.header("◊ ML Price Predictions")
     with col2:
-        if st.button("🔄 Refresh Predictions", use_container_width=True):
+        if st.button("◐ Refresh Predictions", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
     
@@ -766,14 +766,14 @@ def show_predictions():
         )
     
     with col3:
-        if st.button("🚀 Train Model", use_container_width=True):
+        if st.button("◈ Train Model", use_container_width=True):
             with st.spinner("Training model... This may take a few minutes."):
                 if selected_symbol == 'All':
                     st.info("Please select a specific cryptocurrency to train its model.")
                 else:
                     result = prediction_service.train_model(selected_symbol, days=365, epochs=50)
                     if result['status'] == 'success':
-                        st.success(f"✅ Model trained successfully for {selected_symbol}!")
+                        st.success(f"◉ Model trained successfully for {selected_symbol}!")
                         st.json(result)
                     else:
                         st.error(f"❌ Training failed: {result['message']}")
@@ -782,19 +782,19 @@ def show_predictions():
                             st.info("🔍 **What happened**: The system successfully fetched real data and calculated features, but failed at the TensorFlow model creation step.")
     
     # Train all models button
-    st.markdown("### 🚀 Train All Models")
-    if st.button("🚀 Train All Models", type="primary", use_container_width=True):
+    st.markdown("### ◈ Train All Models")
+    if st.button("◈ Train All Models", type="primary", use_container_width=True):
         with st.spinner("Training all models... This may take several minutes."):
             try:
                 results = prediction_service.train_all_models()
                 
                 # Show training results
-                st.success("✅ Training completed!")
+                st.success("◉ Training completed!")
                 
                 # Display results
                 for result in results:
                     if result['status'] == 'success':
-                        st.success(f"✅ {result['symbol']}: {result['message']}")
+                        st.success(f"◉ {result['symbol']}: {result['message']}")
                     else:
                         st.error(f"❌ {result['symbol']}: {result['message']}")
                         
@@ -804,9 +804,9 @@ def show_predictions():
                 
                 # Show what actually happened
                 st.info("🔍 **What happened**: The system successfully fetched real data and calculated features, but failed at the TensorFlow model creation step.")
-                st.info("📊 **Data processed**: 366 days of real market data with 11 technical indicators")
-                st.info("🔄 **Sequences created**: 352 training sequences ready for LSTM training")
-                st.info("⚠️ **Missing**: TensorFlow library for neural network training")
+                st.info("◉ **Data processed**: 366 days of real market data with 11 technical indicators")
+                st.info("◐ **Sequences created**: 352 training sequences ready for LSTM training")
+                st.info("◊ **Missing**: TensorFlow library for neural network training")
     
     st.markdown("---")
     
@@ -818,7 +818,7 @@ def show_predictions():
             predictions = [prediction_service.get_prediction(selected_symbol, days_ahead)]
     
     # Display predictions with portfolio-style cards
-    st.markdown("### 📊 Price Predictions")
+    st.markdown("### ◉ Price Predictions")
     
     if not predictions:
         st.warning("No predictions available. Please try again.")
@@ -837,15 +837,15 @@ def show_predictions():
                 if pred['predicted_return'] > 0.02:  # > 2% gain
                     border_color = "#00ff00"
                     return_color = "#00ff00"
-                    return_symbol = "📈"
+                    return_symbol = "◈"
                 elif pred['predicted_return'] < -0.02:  # < -2% loss
                     border_color = "#ff4444"
                     return_color = "#ff4444"
-                    return_symbol = "📉"
+                    return_symbol = "◊"
                 else:  # Neutral
                     border_color = "#1f77b4"
                     return_color = "#1f77b4"
-                    return_symbol = "➡️"
+                    return_symbol = "◐"
                 
                 # Confidence color
                 conf_color = "#00ff00" if pred['confidence'] > 0.7 else "#ffaa00" if pred['confidence'] > 0.5 else "#ff4444"
@@ -870,11 +870,11 @@ def show_predictions():
                         
                         # Return percentage with color
                         if pred['predicted_return'] > 0.02:
-                            st.success(f"📈 **+{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
+                            st.success(f"◈ **+{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
                         elif pred['predicted_return'] < -0.02:
-                            st.error(f"📉 **{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
+                            st.error(f"◊ **{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
                         else:
-                            st.info(f"➡️ **{pred['predicted_return']*100:+.2f}%** ({days_ahead}d forecast)")
+                            st.info(f"◐ **{pred['predicted_return']*100:+.2f}%** ({days_ahead}d forecast)")
                         
                         # Model info
                         st.caption(f"Model: {pred['model_version']} | Status: {pred['status']}")
@@ -884,7 +884,7 @@ def show_predictions():
     st.markdown("---")
     
     # Prediction table
-    st.markdown("### 📋 Detailed Predictions")
+    st.markdown("### ◊ Detailed Predictions")
     
     # Prepare data for table
     table_data = []
@@ -905,7 +905,7 @@ def show_predictions():
     
     # Model training section
     st.markdown("---")
-    st.markdown("### 🚀 Model Training")
+    st.markdown("### ◈ Model Training")
     
     col1, col2 = st.columns([2, 1])
     
@@ -921,21 +921,21 @@ def show_predictions():
         """)
     
     with col2:
-        if st.button("🎯 Train All Models", use_container_width=True):
+        if st.button("◈ Train All Models", use_container_width=True):
             with st.spinner("Training all models... This will take several minutes."):
                 results = prediction_service.train_all_models(days=365, epochs=50)
                 
                 # Display results with better formatting
-                st.markdown("#### 🚀 Training Results:")
+                st.markdown("#### ◈ Training Results:")
                 
                 successful = 0
                 failed = 0
                 
                 for symbol, result in results.items():
                     if result['status'] == 'success':
-                        st.success(f"✅ **{symbol}**: Trained successfully")
+                        st.success(f"◉ **{symbol}**: Trained successfully")
                         successful += 1
-                        with st.expander(f"📊 {symbol} Training Details"):
+                        with st.expander(f"◉ {symbol} Training Details"):
                             st.json(result)
                     else:
                         st.error(f"❌ **{symbol}**: {result['message']}")
@@ -1026,78 +1026,791 @@ def show_predictions():
 
 
 def show_rebalancing():
-    """Display rebalancing recommendations."""
+    """Display portfolio rebalancing interface."""
     st.header("⚖️ Portfolio Rebalancing")
     
-    st.info("🚧 **Coming Soon!** Rebalancing logic in development...")
+    # Import rebalancing service
+    try:
+        from ml.portfolio_rebalancer import PortfolioRebalancer
+    except ImportError as e:
+        st.error(f"❌ Could not import portfolio rebalancer: {e}")
+        return
     
-    st.markdown("""
-    ### Rebalancing Strategy:
+    # Initialize rebalancer
+    paper_trading = st.sidebar.checkbox("📝 Paper Trading Mode", value=True, help="Enable paper trading to test strategies without real money")
+    rebalancer = PortfolioRebalancer(paper_trading=paper_trading)
     
-    1. **Base Strategy**: Equal-weight allocation (25% each for 4 coins)
-    2. **ML Enhancement**: Adjust weights based on predicted returns
-    3. **Risk Controls**: 
-        - Max 40% per position
-        - Min 10% per position
-        - Min $50 trade size
-    4. **Schedule**: Every Sunday at 10 PM CDT
+    # Portfolio value input
+    st.markdown("### 💰 Portfolio Configuration")
+    col1, col2 = st.columns([2, 1])
     
-    ### Next Actions:
-    - Review current allocation
-    - Calculate target allocation based on ML predictions
-    - Generate buy/sell orders
-    - Execute trades (paper trading first!)
-    """)
+    with col1:
+        portfolio_value = st.number_input(
+            "Portfolio Value (USD)",
+            min_value=1000.0,
+            max_value=1000000.0,
+            value=10000.0,
+            step=1000.0,
+            help="Total portfolio value for rebalancing calculations"
+        )
+    
+    with col2:
+        use_ml = st.checkbox("🧠 Use ML Predictions", value=True, help="Enhance allocation with ML predictions")
+    
+    # Advanced configuration
+    with st.expander("⚙️ Advanced Configuration"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Risk Controls**")
+            max_position = st.slider(
+                "Max Position Weight (%)",
+                min_value=20,
+                max_value=60,
+                value=int(rebalancer.config.get('max_position_weight', 0.4) * 100),
+                help="Maximum allocation per position"
+            )
+            
+            min_position = st.slider(
+                "Min Position Weight (%)",
+                min_value=5,
+                max_value=20,
+                value=int(rebalancer.config.get('min_position_weight', 0.1) * 100),
+                help="Minimum allocation per position"
+            )
+            
+            min_trade_size = st.number_input(
+                "Min Trade Size ($)",
+                min_value=10.0,
+                max_value=1000.0,
+                value=float(rebalancer.config.get('min_trade_size', 50.0)),
+                step=10.0,
+                help="Minimum trade size to execute"
+            )
+        
+        with col2:
+            st.markdown("**ML Parameters**")
+            ml_factor = st.slider(
+                "ML Weight Factor",
+                min_value=0.0,
+                max_value=1.0,
+                value=float(rebalancer.config.get('ml_weight_factor', 0.3)),
+                step=0.1,
+                help="How much ML predictions affect allocation"
+            )
+            
+            confidence_threshold = st.slider(
+                "Confidence Threshold",
+                min_value=0.0,
+                max_value=1.0,
+                value=float(rebalancer.config.get('confidence_threshold', 0.6)),
+                step=0.1,
+                help="Minimum confidence for ML adjustments"
+            )
+            
+            trading_fee = st.number_input(
+                "Trading Fee (%)",
+                min_value=0.0,
+                max_value=1.0,
+                value=float(rebalancer.config.get('trading_fee', 0.0016)) * 100,
+                step=0.01,
+                help="Trading fee percentage"
+            )
+        
+        # Update configuration
+        if st.button("💾 Save Configuration"):
+            rebalancer.config.update({
+                'max_position_weight': max_position / 100,
+                'min_position_weight': min_position / 100,
+                'min_trade_size': min_trade_size,
+                'ml_weight_factor': ml_factor,
+                'confidence_threshold': confidence_threshold,
+                'trading_fee': trading_fee / 100
+            })
+            
+            if rebalancer.save_config():
+                st.success("✅ Configuration saved successfully!")
+            else:
+                st.error("❌ Failed to save configuration")
+    
+    st.markdown("---")
+    
+    # Get rebalancing summary
+    with st.spinner("🔄 Calculating rebalancing recommendations..."):
+        summary = rebalancer.get_rebalancing_summary()
+    
+    # Quick status overview
+    total_orders = len(summary['orders'])
+    max_drift = summary['metrics']['max_drift'] * 100
+    total_fees = summary['metrics']['total_fees']
+    
+    if total_orders == 0:
+        st.success("✅ **Portfolio is perfectly balanced!** No rebalancing needed.")
+    elif max_drift > 5:
+        st.warning(f"⚠️ **Significant drift detected** - {max_drift:.1f}% max drift requires rebalancing")
+    elif total_fees > 100:
+        st.info(f"💰 **High trading fees** - ${total_fees:.2f} total cost for rebalancing")
+    else:
+        st.info(f"📊 **Portfolio needs minor adjustments** - {total_orders} orders, ${total_fees:.2f} fees")
+    
+    # Display current vs target allocation
+    st.markdown("### 📊 Current vs Target Allocation")
+    
+    # Create allocation comparison
+    allocation_data = []
+    for symbol in rebalancer.SUPPORTED_SYMBOLS:
+        current = summary['current_allocation'].get(symbol, 0.0)
+        target = summary['target_allocation'].get(symbol, 0.0)
+        drift = abs(target - current)
+        
+        allocation_data.append({
+            'Symbol': symbol,
+            'Current (%)': f"{current*100:.1f}%",
+            'Target (%)': f"{target*100:.1f}%",
+            'Drift (%)': f"{drift*100:.1f}%",
+            'Status': 'OVERWEIGHT' if current > target else 'UNDERWEIGHT' if current < target else 'BALANCED'
+        })
+    
+    # Display allocation table
+    st.dataframe(
+        pd.DataFrame(allocation_data),
+        use_container_width=True,
+        hide_index=True
+    )
+    
+    # Display allocation visualization
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### 📈 Current Allocation")
+        current_df = pd.DataFrame([
+            {'Symbol': symbol, 'Weight': weight*100}
+            for symbol, weight in summary['current_allocation'].items()
+        ])
+        
+        fig_current = px.pie(
+            current_df, 
+            values='Weight', 
+            names='Symbol',
+            title="Current Portfolio",
+            color_discrete_sequence=px.colors.qualitative.Set3
+        )
+        fig_current.update_layout(height=400)
+        st.plotly_chart(fig_current, use_container_width=True)
+    
+    with col2:
+        st.markdown("#### 🎯 Target Allocation")
+        target_df = pd.DataFrame([
+            {'Symbol': symbol, 'Weight': weight*100}
+            for symbol, weight in summary['target_allocation'].items()
+        ])
+        
+        fig_target = px.pie(
+            target_df, 
+            values='Weight', 
+            names='Symbol',
+            title="Target Portfolio",
+            color_discrete_sequence=px.colors.qualitative.Set3
+        )
+        fig_target.update_layout(height=400)
+        st.plotly_chart(fig_target, use_container_width=True)
+    
+    st.markdown("---")
+    
+    # Display rebalancing orders
+    st.markdown("### 📋 Rebalancing Orders")
+    
+    if summary['orders']:
+        orders_data = []
+        for order in summary['orders']:
+            orders_data.append({
+                'Symbol': order['symbol'],
+                'Action': order['type'],
+                'Amount ($)': f"${order['amount_usd']:,.2f}",
+                'Fee ($)': f"${order['fee_usd']:.2f}",
+                'Net Amount ($)': f"${order['net_amount_usd']:,.2f}",
+                'Weight Change': f"{order['weight_change']*100:+.1f}%"
+            })
+        
+        st.dataframe(
+            pd.DataFrame(orders_data),
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        # Order summary
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Orders", len(summary['orders']))
+        
+        with col2:
+            st.metric("Total Fees", f"${summary['metrics']['total_fees']:.2f}")
+        
+        with col3:
+            st.metric("Buy Orders", summary['metrics']['buy_orders'])
+        
+        with col4:
+            st.metric("Sell Orders", summary['metrics']['sell_orders'])
+        
+    else:
+        st.success("✅ Portfolio is already balanced - no rebalancing needed!")
+    
+    st.markdown("---")
+    
+    # Recommendations
+    st.markdown("### 💡 Recommendations")
+    
+    for recommendation in summary['recommendations']:
+        if "⚠️" in recommendation:
+            st.warning(recommendation)
+        elif "💰" in recommendation or "📦" in recommendation:
+            st.info(recommendation)
+        elif "🚨" in recommendation:
+            st.error(recommendation)
+        else:
+            st.success(recommendation)
+    
+    st.markdown("---")
+    
+    # Execution section
+    st.markdown("### 🚀 Execute Rebalancing")
+    
+    col1, col2 = st.columns([1, 1])
+    
+    with col1:
+        if st.button("📝 Execute Paper Trading", type="primary", use_container_width=True):
+            with st.spinner("Executing paper trading rebalancing..."):
+                result = rebalancer.execute_rebalancing(portfolio_value)
+                
+                if result['status'] == 'success':
+                    st.success(f"✅ Paper trading executed successfully!")
+                    st.success(f"📊 {result['orders_executed']} orders executed")
+                    st.success(f"💰 Total fees: ${result['total_fees']:.2f}")
+                    
+                    # Show executed orders
+                    with st.expander("📋 View Executed Orders"):
+                        for order in result['orders']:
+                            st.json(order)
+                else:
+                    st.error(f"❌ Execution failed: {result.get('message', 'Unknown error')}")
+    
+    with col2:
+        if st.button("🚨 Execute Live Trading", type="secondary", use_container_width=True, disabled=True):
+            st.warning("🚨 Live trading not implemented yet - use paper trading mode")
+    
+    # Strategy information
+    with st.expander("ℹ️ Rebalancing Strategy Details"):
+        st.markdown("""
+        **Strategy Overview:**
+        
+        1. **Base Strategy**: Equal-weight allocation (16.67% each for 6 coins)
+        2. **ML Enhancement**: Adjust weights based on predicted returns
+        3. **Risk Controls**: 
+           - Max 40% per position
+           - Min 10% per position
+           - Min $50 trade size
+        4. **Trading Fees**: 0.16% maker fee (Kraken)
+        
+        **How It Works:**
+        
+        1. **Data Collection**: Fetches current portfolio and ML predictions
+        2. **Target Calculation**: Combines equal-weight base with ML adjustments
+        3. **Risk Application**: Enforces position limits and trade minimums
+        4. **Order Generation**: Creates buy/sell orders with fee calculations
+        5. **Execution**: Paper trading for testing, live trading for production
+        
+        **Important Notes:**
+        - Always test with paper trading first
+        - Review all orders before live execution
+        - ML predictions are for educational purposes only
+        - Past performance doesn't guarantee future results
+        """)
+    
+    # Performance metrics with enhanced styling
+    st.markdown("---")
+    st.markdown("### 📈 Portfolio Health Metrics")
+    
+    # Create enhanced KPI cards
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        max_drift = summary['metrics']['max_drift'] * 100
+        drift_icon = "⚠️" if max_drift > 5 else "📊" if max_drift > 2 else "✅"
+        
+        with st.container():
+            st.markdown(f"### {drift_icon} Max Drift")
+            st.metric("", f"{max_drift:.1f}%", help="Largest allocation deviation")
+            st.caption("Largest allocation deviation")
+    
+    with col2:
+        avg_drift = summary['metrics']['avg_drift'] * 100
+        avg_icon = "⚠️" if avg_drift > 3 else "📊" if avg_drift > 1 else "✅"
+        
+        with st.container():
+            st.markdown(f"### {avg_icon} Avg Drift")
+            st.metric("", f"{avg_drift:.1f}%", help="Average deviation")
+            st.caption("Average deviation")
+    
+    with col3:
+        total_fees = summary['metrics']['total_fees']
+        fee_icon = "💰" if total_fees > 100 else "💸" if total_fees > 50 else "✅"
+        
+        with st.container():
+            st.markdown(f"### {fee_icon} Trading Fees")
+            st.metric("", f"${total_fees:.2f}", help="Total rebalancing cost")
+            st.caption("Total rebalancing cost")
+    
+    with col4:
+        fee_percentage = (summary['metrics']['total_fees'] / portfolio_value) * 100
+        fee_pct_icon = "⚠️" if fee_percentage > 0.5 else "📊" if fee_percentage > 0.2 else "✅"
+        
+        with st.container():
+            st.markdown(f"### {fee_pct_icon} Fee %")
+            st.metric("", f"{fee_percentage:.2f}%", help="Fees vs portfolio")
+            st.caption("Fees vs portfolio")
+    
+    # Additional metrics row
+    st.markdown("### 📊 Rebalancing Summary")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        total_orders = len(summary['orders'])
+        order_icon = "📋" if total_orders > 8 else "📝" if total_orders > 4 else "✅"
+        
+        with st.container():
+            st.markdown(f"### {order_icon} Total Orders")
+            st.metric("", f"{total_orders}", help="Rebalancing trades")
+            st.caption("Rebalancing trades")
+    
+    with col2:
+        buy_orders = summary['metrics']['buy_orders']
+        buy_icon = "📈" if buy_orders > 0 else "➖"
+        
+        with st.container():
+            st.markdown(f"### {buy_icon} Buy Orders")
+            st.metric("", f"{buy_orders}", help="Positions to increase")
+            st.caption("Positions to increase")
+    
+    with col3:
+        sell_orders = summary['metrics']['sell_orders']
+        sell_icon = "📉" if sell_orders > 0 else "➖"
+        
+        with st.container():
+            st.markdown(f"### {sell_icon} Sell Orders")
+            st.metric("", f"{sell_orders}", help="Positions to decrease")
+            st.caption("Positions to decrease")
+    
+    with col4:
+        # Portfolio health score
+        max_drift = summary['metrics']['max_drift'] * 100
+        avg_drift = summary['metrics']['avg_drift'] * 100
+        fee_pct = (summary['metrics']['total_fees'] / portfolio_value) * 100
+        
+        # Calculate health score (0-100)
+        drift_score = max(0, 100 - (max_drift * 10))  # Penalty for high drift
+        fee_score = max(0, 100 - (fee_pct * 200))     # Penalty for high fees
+        health_score = (drift_score + fee_score) / 2
+        
+        health_icon = "⚠️" if health_score < 60 else "📊" if health_score < 80 else "✅"
+        
+        with st.container():
+            st.markdown(f"### {health_icon} Health Score")
+            st.metric("", f"{health_score:.0f}", help="Portfolio balance")
+            st.caption("Portfolio balance")
+    
+    # Drift analysis details
+    with st.expander("📊 Detailed Drift Analysis"):
+        drift_data = []
+        for symbol, analysis in summary['drift_analysis'].items():
+            drift_data.append({
+                'Symbol': symbol,
+                'Current Weight': f"{analysis['current']*100:.1f}%",
+                'Target Weight': f"{analysis['target']*100:.1f}%",
+                'Drift': f"{analysis['drift']*100:.1f}%",
+                'Status': analysis['status']
+            })
+        
+        st.dataframe(
+            pd.DataFrame(drift_data),
+            use_container_width=True,
+            hide_index=True
+        )
+    
+    # Status info
+    mode_text = "Paper Trading" if paper_trading else "Live Trading"
+    st.success(f"✅ **Portfolio Rebalancer Active** - {mode_text} mode with ML-enhanced allocation strategy!")
 
 
 def main():
     """Main application entry point."""
     
-    # Sidebar navigation
-    st.sidebar.title("Navigation")
-    page = st.sidebar.radio(
-        "Go to:",
-        ["📊 Portfolio", "📈 Live Prices", "🧠 Predictions", "⚖️ Rebalancing"]
-    )
+    # Initialize session state for navigation
+    if 'current_page' not in st.session_state:
+        # Check for URL parameters first
+        query_params = st.query_params
+        if 'page' in query_params:
+            page_param = query_params['page']
+            if page_param in ["portfolio", "prices", "predictions", "rebalancing"]:
+                page_map = {
+                    "portfolio": "◉ Portfolio",
+                    "prices": "◈ Live Prices", 
+                    "predictions": "◊ Predictions",
+                    "rebalancing": "◐ Rebalancing"
+                }
+                st.session_state.current_page = page_map[page_param]
+            else:
+                st.session_state.current_page = "◉ Portfolio"
+        else:
+            st.session_state.current_page = "◉ Portfolio"
     
-    st.sidebar.markdown("---")
-    
-    # System status
-    st.sidebar.subheader("System Status")
-    st.sidebar.success("✅ Kraken API Connected")
-    st.sidebar.warning("⏳ ML Models: Training")
-    st.sidebar.info("📝 Paper Trading Mode")
-    
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### About")
+    # Enhanced sidebar navigation
     st.sidebar.markdown("""
-    **Version:** 1.0.0  
-    **Mode:** Development  
-    **Data Source:** Kraken API  
-    """)
+    <div style='
+        background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+        border: 1px solid #333;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    '>
+        <h2 style='
+            color: #45b7d1;
+            text-align: center;
+            margin: 0 0 15px 0;
+            font-size: 24px;
+            font-weight: bold;
+        '>🚀 Crypto ML Dashboard</h2>
+        <p style='
+            color: #888;
+            text-align: center;
+            margin: 0;
+            font-size: 14px;
+        '>Advanced Trading Analytics</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.sidebar.markdown("### ◈ Navigation")
+    
+    # Create proper navigation buttons instead of radio buttons
+    def navigate_to_page(page_name):
+        st.session_state.current_page = page_name
+        page_url_map = {
+            "◉ Portfolio": "portfolio",
+            "◈ Live Prices": "prices", 
+            "◊ Predictions": "predictions",
+            "◐ Rebalancing": "rebalancing"
+        }
+        st.query_params.page = page_url_map[page_name]
+        st.rerun()
+    
+    # Navigation buttons with futuristic icons and descriptions
+    nav_buttons = [
+        ("◉ Portfolio", "View your crypto portfolio", "portfolio"),
+        ("◈ Live Prices", "Real-time market prices", "prices"),
+        ("◊ Predictions", "ML price predictions", "predictions"),
+        ("◐ Rebalancing", "Portfolio rebalancing", "rebalancing")
+    ]
+    
+    for page_name, description, page_key in nav_buttons:
+        # Determine if this is the current page
+        is_current = st.session_state.current_page == page_name
+        
+        if is_current:
+            # Current page button with active styling
+            st.sidebar.markdown(f"""
+            <div style='
+                background: linear-gradient(135deg, #45b7d1 0%, #4ecdc4 100%);
+                color: white;
+                padding: 15px;
+                border-radius: 10px;
+                margin: 8px 0;
+                text-align: center;
+                font-weight: bold;
+                box-shadow: 0 4px 15px rgba(69, 183, 209, 0.3);
+                border: 2px solid #45b7d1;
+            '>
+                <div style='font-size: 16px; margin-bottom: 5px;'>{page_name}</div>
+                <div style='font-size: 12px; opacity: 0.9;'>{description}</div>
+                <div style='font-size: 10px; margin-top: 5px; opacity: 0.8;'>✓ Active</div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # Inactive page button
+            if st.sidebar.button(f"{page_name}", use_container_width=True, help=description):
+                navigate_to_page(page_name)
+    
+    # Set the current page for the rest of the app
+    page = st.session_state.current_page
+    
+    # Update session state when page changes
+    if page != st.session_state.current_page:
+        st.session_state.current_page = page
+        
+        # Update URL parameters
+        page_url_map = {
+            "📊 Portfolio": "portfolio",
+            "📈 Live Prices": "prices", 
+            "🧠 Predictions": "predictions",
+            "⚖️ Rebalancing": "rebalancing"
+        }
+        
+        st.query_params.page = page_url_map[page]
+        st.rerun()
+    
+    st.sidebar.markdown("---")
+    
+    # Enhanced system status
+    st.sidebar.markdown("### ◊ System Status")
+    
+    # Status indicators with better styling
+    col1, col2 = st.sidebar.columns(2)
+    
+    with col1:
+        st.sidebar.markdown("""
+        <div style='
+            background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+            border: 1px solid #4ecdc4;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 5px 0;
+            text-align: center;
+        '>
+            <div style='color: #4ecdc4; font-size: 20px; margin-bottom: 5px;'>✅</div>
+            <div style='color: white; font-size: 12px; font-weight: bold;'>Kraken API</div>
+            <div style='color: #888; font-size: 10px;'>Connected</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.sidebar.markdown("""
+        <div style='
+            background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+            border: 1px solid #ff6b6b;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 5px 0;
+            text-align: center;
+        '>
+            <div style='color: #ff6b6b; font-size: 20px; margin-bottom: 5px;'>⏳</div>
+            <div style='color: white; font-size: 12px; font-weight: bold;'>ML Models</div>
+            <div style='color: #888; font-size: 10px;'>Training</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Paper trading mode indicator
+    st.sidebar.markdown("""
+    <div style='
+        background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+        border: 1px solid #45b7d1;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        text-align: center;
+    '>
+        <div style='color: #45b7d1; font-size: 20px; margin-bottom: 5px;'>📝</div>
+        <div style='color: white; font-size: 12px; font-weight: bold;'>Paper Trading</div>
+        <div style='color: #888; font-size: 10px;'>Safe Mode</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Enhanced about section
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### ℹ️ About")
+    st.sidebar.markdown("""
+    <div style='
+        background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+    '>
+        <div style='color: #45b7d1; font-weight: bold; margin-bottom: 10px;'>🚀 Crypto ML Dashboard</div>
+        <div style='color: #888; font-size: 12px; margin-bottom: 5px;'><strong>Version:</strong> 1.0.0</div>
+        <div style='color: #888; font-size: 12px; margin-bottom: 5px;'><strong>Mode:</strong> Development</div>
+        <div style='color: #888; font-size: 12px; margin-bottom: 5px;'><strong>Data Source:</strong> Kraken API</div>
+        <div style='color: #888; font-size: 12px;'><strong>ML Engine:</strong> LSTM Neural Networks</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Progress indicator
+    st.sidebar.markdown("### 📊 System Progress")
+    
+    # Mock progress data
+    progress_data = {
+        "Data Collection": 95,
+        "ML Training": 60,
+        "Portfolio Analysis": 100,
+        "Rebalancing": 85
+    }
+    
+    for component, progress in progress_data.items():
+        st.sidebar.markdown(f"""
+        <div style='
+            background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 5px 0;
+        '>
+            <div style='
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 5px;
+            '>
+                <span style='color: white; font-size: 12px; font-weight: bold;'>{component}</span>
+                <span style='color: #45b7d1; font-size: 12px; font-weight: bold;'>{progress}%</span>
+            </div>
+            <div style='
+                background: #333;
+                border-radius: 10px;
+                height: 6px;
+                overflow: hidden;
+            '>
+                <div style='
+                    background: linear-gradient(90deg, #45b7d1 0%, #4ecdc4 100%);
+                    height: 100%;
+                    width: {progress}%;
+                    border-radius: 10px;
+                    transition: width 0.3s ease;
+                '></div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Display header
     show_header()
     
+    # Enhanced page header
+    st.markdown(f"""
+    <div style='
+        background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+        border: 1px solid #333;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        text-align: center;
+    '>
+        <h1 style='
+            color: #45b7d1;
+            margin: 0 0 10px 0;
+            font-size: 32px;
+            font-weight: bold;
+        '>🎯 {page}</h1>
+        <p style='
+            color: #888;
+            margin: 0;
+            font-size: 16px;
+        '>Advanced Cryptocurrency Analytics & Trading</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Enhanced breadcrumb navigation
+    st.markdown("### 🧭 Navigation Path")
+    
+    breadcrumb_pages = ["◉ Portfolio", "◈ Live Prices", "◊ Predictions", "◐ Rebalancing"]
+    current_index = breadcrumb_pages.index(page)
+    
+    # Create breadcrumb with better styling
+    breadcrumb_cols = st.columns([1, 0.3, 1, 0.3, 1, 0.3, 1])
+    
+    for i, page_name in enumerate(breadcrumb_pages):
+        with breadcrumb_cols[i * 2]:  # Use every other column for pages
+            if i == current_index:
+                st.markdown(f"""
+                <div style='
+                    background: linear-gradient(135deg, #45b7d1 0%, #4ecdc4 100%);
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                    text-align: center;
+                    font-weight: bold;
+                    box-shadow: 0 4px 15px rgba(69, 183, 209, 0.3);
+                '>{page_name}</div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div style='
+                    background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+                    color: #888;
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                    text-align: center;
+                    border: 1px solid #333;
+                    transition: all 0.3s ease;
+                '>{page_name}</div>
+                """, unsafe_allow_html=True)
+        
+        # Add arrow between pages
+        if i < len(breadcrumb_pages) - 1:
+            with breadcrumb_cols[i * 2 + 1]:  # Use the in-between columns for arrows
+                st.markdown("""
+                <div style='
+                    text-align: center;
+                    color: #666;
+                    font-size: 20px;
+                    margin-top: 10px;
+                '>→</div>
+                """, unsafe_allow_html=True)
     st.markdown("---")
     
     # Route to selected page
-    if page == "📊 Portfolio":
+    if page == "◉ Portfolio":
         show_portfolio_view()
-    elif page == "📈 Live Prices":
+    elif page == "◈ Live Prices":
         show_live_prices()
-    elif page == "🧠 Predictions":
+    elif page == "◊ Predictions":
         show_predictions()
-    elif page == "⚖️ Rebalancing":
+    elif page == "◐ Rebalancing":
         show_rebalancing()
     
-    # Auto-refresh option
+    # Enhanced refresh controls
     st.sidebar.markdown("---")
-    auto_refresh = st.sidebar.checkbox("Auto-refresh (60s)", value=False)
+    st.sidebar.markdown("### ◐ Refresh Controls")
+    
+    # Refresh button with better styling
+    if st.sidebar.button("🔄 Refresh Data", use_container_width=True, type="primary"):
+        st.rerun()
+    
+    # Auto-refresh toggle
+    auto_refresh = st.sidebar.checkbox("⏰ Auto-refresh (60s)", value=False, help="Automatically refresh data every 60 seconds")
     
     if auto_refresh:
         time.sleep(60)
         st.rerun()
+    
+    # Current page indicator with better styling
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### ◉ Current Page")
+    st.sidebar.markdown(f"""
+    <div style='
+        background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
+        border: 1px solid #45b7d1;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        text-align: center;
+    '>
+        <div style='color: #45b7d1; font-size: 16px; font-weight: bold;'>{st.session_state.current_page}</div>
+        <div style='color: #888; font-size: 12px;'>Active Page</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Quick navigation shortcuts (optional secondary navigation)
+    st.sidebar.markdown("### ◈ Quick Actions")
+    
+    # Add some quick action buttons
+    if st.sidebar.button("🔄 Refresh All Data", use_container_width=True):
+        st.rerun()
+    
+    if st.sidebar.button("◉ View Portfolio", use_container_width=True):
+        navigate_to_page("◉ Portfolio")
+    
+    if st.sidebar.button("◈ Check Prices", use_container_width=True):
+        navigate_to_page("◈ Live Prices")
 
 
 if __name__ == "__main__":

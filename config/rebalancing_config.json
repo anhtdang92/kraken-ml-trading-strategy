@@ -1,0 +1,10 @@
+{
+  "max_position_weight": 0.4,
+  "min_position_weight": 0.1,
+  "min_trade_size": 50.0,
+  "trading_fee": 0.0016,
+  "ml_weight_factor": 0.3,
+  "confidence_threshold": 0.6,
+  "rebalancing_schedule": "weekly",
+  "last_rebalancing": null
+}
