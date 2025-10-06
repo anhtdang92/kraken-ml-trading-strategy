@@ -23,25 +23,44 @@ st.set_page_config(
 # Custom CSS for better styling
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+    
     .main {
         padding: 0rem 1rem;
     }
     .stMetric {
-        background-color: #f0f2f6;
-        padding: 15px;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #0f3460;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
     .css-1d391kg {
         padding: 2rem 1rem;
     }
     h1 {
-        color: #1f77b4;
+        color: #4ecdc4;
     }
     .positive {
-        color: #28a745;
+        color: #00ff88;
     }
     .negative {
-        color: #dc3545;
+        color: #ff4757;
+    }
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -130,9 +149,14 @@ def show_portfolio_view():
     """Display portfolio overview with holdings and performance."""
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.header("◉ Portfolio Overview")
+        st.markdown("""
+        <h1 style='color: #4ecdc4; margin: 0 0 20px 0; display: flex; align-items: center;'>
+            <span class='material-symbols-outlined' style='margin-right: 12px; font-size: 32px;'>account_balance</span>
+            Portfolio Overview
+        </h1>
+        """, unsafe_allow_html=True)
     with col2:
-        if st.button("◐ Refresh Data", use_container_width=True):
+        if st.button("⟳ Refresh", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
     
@@ -140,7 +164,7 @@ def show_portfolio_view():
     try:
         from data.kraken_auth import KrakenAuthClient
         
-        with st.spinner("◐ Fetching your portfolio from Kraken..."):
+        with st.spinner("⟳ Fetching your portfolio from Kraken..."):
             client = KrakenAuthClient()
             balance = client.get_account_balance()
             
@@ -213,16 +237,16 @@ def show_portfolio_view():
                 
                 st.success("◉ Connected to your Kraken account!")
             else:
-                st.warning("◊ Could not fetch portfolio. Using demo data.")
+                st.warning("△ Could not fetch portfolio. Using demo data.")
                 portfolio_data = _get_demo_portfolio()
                 
     except Exception as e:
-        st.warning(f"◊ Could not connect to Kraken: {e}. Using demo data.")
+        st.warning(f"△ Could not connect to Kraken: {e}. Using demo data.")
         portfolio_data = _get_demo_portfolio()
     
     # If no holdings, show demo
     if not portfolio_data:
-        st.info("◐ No holdings found. Add some crypto to your Kraken account or using demo data.")
+        st.info("◉ No holdings found. Add some crypto to your Kraken account or using demo data.")
         portfolio_data = _get_demo_portfolio()
     
     # Fetch live prices for all holdings
@@ -286,7 +310,7 @@ def show_portfolio_view():
     total_pnl_pct = (total_pnl / total_cost) * 100 if total_cost > 0 else 0
     
     # Show last update time
-    st.caption(f"◐ Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
+    st.caption(f"⟳ Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
     
     # Calculate staked value if available
     staked_value = 0
@@ -325,29 +349,56 @@ def show_portfolio_view():
     
     with col1:
         st.markdown(f"""
-        <div style='background-color: #0e1117; padding: 20px; border-radius: 10px; border: 2px solid #1f77b4;'>
-            <h4 style='color: #1f77b4; margin: 0;'>◉ Total Value</h4>
-            <h1 style='color: white; margin: 10px 0;'>${total_value:,.4f}</h1>
+        <div style='
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #4ecdc4;
+            box-shadow: 0 8px 24px rgba(78, 205, 196, 0.2);
+        '>
+            <div style='display: flex; align-items: center; margin-bottom: 12px;'>
+                <span style='color: #4ecdc4; font-size: 32px; margin-right: 12px;' class='material-symbols-outlined'>account_balance</span>
+                <h4 style='color: #4ecdc4; margin: 0;'>Total Value</h4>
+            </div>
+            <h1 style='color: white; margin: 10px 0; font-size: 32px;'>${total_value:,.4f}</h1>
             <p style='color: #888; margin: 0; font-size: 14px;'>Current portfolio value</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
-        pnl_color = "#00ff00" if total_pnl >= 0 else "#ff4444"
-        pnl_symbol = "◈" if total_pnl >= 0 else "◊"
+        pnl_color = "#00ff88" if total_pnl >= 0 else "#ff4757"
+        pnl_icon = "trending_up" if total_pnl >= 0 else "trending_down"
         st.markdown(f"""
-        <div style='background-color: #0e1117; padding: 20px; border-radius: 10px; border: 2px solid {pnl_color};'>
-            <h4 style='color: {pnl_color}; margin: 0;'>{pnl_symbol} Total P&L</h4>
-            <h1 style='color: {pnl_color}; margin: 10px 0;'>${total_pnl:+,.4f}</h1>
+        <div style='
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid {pnl_color};
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.2);
+        '>
+            <div style='display: flex; align-items: center; margin-bottom: 12px;'>
+                <span style='color: {pnl_color}; font-size: 32px; margin-right: 12px;' class='material-symbols-outlined'>{pnl_icon}</span>
+                <h4 style='color: {pnl_color}; margin: 0;'>Total P&L</h4>
+            </div>
+            <h1 style='color: {pnl_color}; margin: 10px 0; font-size: 32px;'>${total_pnl:+,.4f}</h1>
             <p style='color: #888; margin: 0; font-size: 14px;'>{total_pnl_pct:+.2f}% gain/loss</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown(f"""
-        <div style='background-color: #0e1117; padding: 20px; border-radius: 10px; border: 2px solid #9467bd;'>
-            <h4 style='color: #9467bd; margin: 0;'>◐ Staked Value</h4>
-            <h1 style='color: white; margin: 10px 0;'>${staked_value:,.4f}</h1>
+        <div style='
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #4ecdc4;
+            box-shadow: 0 8px 24px rgba(78, 205, 196, 0.2);
+        '>
+            <div style='display: flex; align-items: center; margin-bottom: 12px;'>
+                <span style='color: #4ecdc4; font-size: 32px; margin-right: 12px;' class='material-symbols-outlined'>lock</span>
+                <h4 style='color: #4ecdc4; margin: 0;'>Staked Value</h4>
+            </div>
+            <h1 style='color: white; margin: 10px 0; font-size: 32px;'>${staked_value:,.4f}</h1>
             <p style='color: #888; margin: 0; font-size: 14px;'>Assets earning rewards</p>
         </div>
         """, unsafe_allow_html=True)
@@ -355,9 +406,18 @@ def show_portfolio_view():
     with col4:
         num_holdings = len(portfolio_data) + len(staked_data)
         st.markdown(f"""
-        <div style='background-color: #0e1117; padding: 20px; border-radius: 10px; border: 2px solid #ff7f0e;'>
-            <h4 style='color: #ff7f0e; margin: 0;'>◈ Total Assets</h4>
-            <h1 style='color: white; margin: 10px 0;'>{num_holdings}</h1>
+        <div style='
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #4ecdc4;
+            box-shadow: 0 8px 24px rgba(78, 205, 196, 0.2);
+        '>
+            <div style='display: flex; align-items: center; margin-bottom: 12px;'>
+                <span style='color: #4ecdc4; font-size: 32px; margin-right: 12px;' class='material-symbols-outlined'>inventory_2</span>
+                <h4 style='color: #4ecdc4; margin: 0;'>Total Assets</h4>
+            </div>
+            <h1 style='color: white; margin: 10px 0; font-size: 32px;'>{num_holdings}</h1>
             <p style='color: #888; margin: 0; font-size: 14px;'>Liquid + Staked</p>
         </div>
         """, unsafe_allow_html=True)
@@ -365,7 +425,7 @@ def show_portfolio_view():
     st.markdown("---")
     
     # Holdings table with better formatting
-    st.markdown("### ◊ Current Holdings")
+    st.markdown("### ⚡ Current Holdings")
     
     if holdings:
         holdings_df = pd.DataFrame(holdings)
@@ -393,7 +453,7 @@ def show_portfolio_view():
     # Staked Assets Section
     if staked_data:
         st.markdown("---")
-        st.markdown("### ◐ Staked & Bonded Assets")
+        st.markdown("### ◉ Staked & Bonded Assets")
         st.info("◉ **These assets are earning staking rewards!** They're locked but still yours and generating passive income.")
         
         staked_holdings = []
@@ -436,7 +496,7 @@ def show_portfolio_view():
             st.markdown(f"**Total Staked Value:** ${total_staked_value:,.4f}")
             
             # Staking info
-            with st.expander("◈ What is Staking?"):
+            with st.expander("◉ What is Staking?"):
                 st.markdown("""
                 **Staking** is like earning interest on your crypto! Here's what's happening:
                 
@@ -447,8 +507,8 @@ def show_portfolio_view():
                 
                 **Benefits:**
                 - ◉ Earn passive income (APY varies by asset)
-                - ◐ Helps secure the blockchain network
-                - ◉ Encourages long-term holding
+                - ◉ Helps secure the blockchain network
+                - ↗ Encourages long-term holding
                 
                 **Note:** To trade staked assets, you'll need to unstake them first (may take time).
                 """)
@@ -493,15 +553,20 @@ def show_live_prices():
     """Display live cryptocurrency prices with charts."""
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.header("◈ Live Cryptocurrency Prices")
+        st.markdown("""
+        <h1 style='color: #4ecdc4; margin: 0 0 20px 0; display: flex; align-items: center;'>
+            <span class='material-symbols-outlined' style='margin-right: 12px; font-size: 32px;'>trending_up</span>
+            Live Cryptocurrency Prices
+        </h1>
+        """, unsafe_allow_html=True)
     with col2:
-        if st.button("◐ Refresh Prices", use_container_width=True):
+        if st.button("⟳ Refresh Prices", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
     
     # Crypto configuration - using verified Kraken pairs
     cryptos = {
-        'XXBTZUSD': {'name': 'Bitcoin', 'symbol': 'BTC', 'icon': '₿', 'color': '#f7931a'},
+        'XXBTZUSD': {'name': 'Bitcoin', 'symbol': 'BTC', 'icon': '◉', 'color': '#f7931a'},
         'XETHZUSD': {'name': 'Ethereum', 'symbol': 'ETH', 'icon': 'Ξ', 'color': '#627eea'},
         'SOLUSD': {'name': 'Solana', 'symbol': 'SOL', 'icon': '◎', 'color': '#9945ff'},
         'ADAUSD': {'name': 'Cardano', 'symbol': 'ADA', 'icon': '₳', 'color': '#0033ad'},
@@ -518,7 +583,7 @@ def show_live_prices():
         return
     
     # Show last update time
-    st.caption(f"◐ Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
+    st.caption(f"⟳ Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
     
     # Display price cards with portfolio-style design
     st.markdown("### ◉ Market Overview")
@@ -549,14 +614,14 @@ def show_live_prices():
 
             price_change = ((current_price - open_price) / open_price) * 100
             change_color = "#00ff00" if price_change >= 0 else "#ff4444"
-            change_symbol = "◈" if price_change >= 0 else "◊"
+            change_symbol = "↗" if price_change >= 0 else "↘"
 
             with cols[col_idx]:
                 st.markdown(f"""
-                <div style='background-color: #0e1117; padding: 20px; border-radius: 10px; border: 2px solid {info['color']}; margin-bottom: 15px;'>
+                <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid {info['color']}; margin-bottom: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
                     <div style='display: flex; align-items: center; margin-bottom: 10px;'>
-                        <h3 style='color: {info['color']}; margin: 0; font-size: 24px;'>{info['icon']}</h3>
-                        <h4 style='color: white; margin: 0 0 0 10px;'>{info['name']}</h4>
+                        <span style='color: {info['color']}; font-size: 32px; margin-right: 12px;' class='material-symbols-outlined'>currency_bitcoin</span>
+                        <h4 style='color: white; margin: 0;'>{info['name']}</h4>
                     </div>
                     <h1 style='color: white; margin: 10px 0; font-size: 28px;'>${current_price:,.2f}</h1>
                     <div style='display: flex; justify-content: space-between; align-items: center; margin: 10px 0;'>
@@ -574,7 +639,7 @@ def show_live_prices():
     st.markdown("---")
     
     # Price chart section with portfolio-style header
-    st.markdown("### ◉ Interactive Price Charts")
+    st.markdown("### ↗ Interactive Price Charts")
     
     # Chart controls in a nice layout
     col1, col2, col3 = st.columns([2, 1, 1])
@@ -672,7 +737,7 @@ def show_live_prices():
         st.plotly_chart(fig_volume, width='stretch')
         
         # Market stats in portfolio-style cards
-        st.markdown("### ◈ Market Statistics")
+        st.markdown("### ◉ Market Statistics")
         
         current_price = df['close'].iloc[-1]
         price_24h_ago = df['close'].iloc[-2] if len(df) > 1 else current_price
@@ -684,35 +749,47 @@ def show_live_prices():
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            change_color = "#00ff00" if change_24h >= 0 else "#ff4444"
+            change_color = "#00ff88" if change_24h >= 0 else "#ff4757"
             st.markdown(f"""
-            <div style='background-color: #0e1117; padding: 15px; border-radius: 10px; border: 2px solid {change_color};'>
-                <h4 style='color: {change_color}; margin: 0;'>24h Change</h4>
-                <h2 style='color: {change_color}; margin: 5px 0;'>{change_24h:+.2f}%</h2>
+            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid {change_color}; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
+                <div style='display: flex; align-items: center; margin-bottom: 12px;'>
+                    <span style='color: {change_color}; font-size: 24px; margin-right: 8px;' class='material-symbols-outlined'>percent</span>
+                    <h4 style='color: {change_color}; margin: 0;'>24h Change</h4>
+                </div>
+                <h2 style='color: {change_color}; margin: 5px 0; font-size: 28px;'>{change_24h:+.2f}%</h2>
             </div>
             """, unsafe_allow_html=True)
         
         with col2:
             st.markdown(f"""
-            <div style='background-color: #0e1117; padding: 15px; border-radius: 10px; border: 2px solid #1f77b4;'>
-                <h4 style='color: #1f77b4; margin: 0;'>24h Volume</h4>
-                <h2 style='color: white; margin: 5px 0;'>{volume_24h:,.0f}</h2>
+            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid #4ecdc4; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
+                <div style='display: flex; align-items: center; margin-bottom: 12px;'>
+                    <span style='color: #4ecdc4; font-size: 24px; margin-right: 8px;' class='material-symbols-outlined'>bar_chart</span>
+                    <h4 style='color: #4ecdc4; margin: 0;'>24h Volume</h4>
+                </div>
+                <h2 style='color: white; margin: 5px 0; font-size: 28px;'>{volume_24h:,.0f}</h2>
             </div>
             """, unsafe_allow_html=True)
         
         with col3:
             st.markdown(f"""
-            <div style='background-color: #0e1117; padding: 15px; border-radius: 10px; border: 2px solid #9467bd;'>
-                <h4 style='color: #9467bd; margin: 0;'>24h High</h4>
-                <h2 style='color: white; margin: 5px 0;'>${high_24h:,.2f}</h2>
+            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid #4ecdc4; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
+                <div style='display: flex; align-items: center; margin-bottom: 12px;'>
+                    <span style='color: #4ecdc4; font-size: 24px; margin-right: 8px;' class='material-symbols-outlined'>arrow_upward</span>
+                    <h4 style='color: #4ecdc4; margin: 0;'>24h High</h4>
+                </div>
+                <h2 style='color: white; margin: 5px 0; font-size: 28px;'>${high_24h:,.2f}</h2>
             </div>
             """, unsafe_allow_html=True)
         
         with col4:
             st.markdown(f"""
-            <div style='background-color: #0e1117; padding: 15px; border-radius: 10px; border: 2px solid #ff7f0e;'>
-                <h4 style='color: #ff7f0e; margin: 0;'>24h Low</h4>
-                <h2 style='color: white; margin: 5px 0;'>${low_24h:,.2f}</h2>
+            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid #4ecdc4; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
+                <div style='display: flex; align-items: center; margin-bottom: 12px;'>
+                    <span style='color: #4ecdc4; font-size: 24px; margin-right: 8px;' class='material-symbols-outlined'>arrow_downward</span>
+                    <h4 style='color: #4ecdc4; margin: 0;'>24h Low</h4>
+                </div>
+                <h2 style='color: white; margin: 5px 0; font-size: 28px;'>${low_24h:,.2f}</h2>
             </div>
             """, unsafe_allow_html=True)
         
@@ -724,9 +801,14 @@ def show_predictions():
     """Display ML predictions with real-time data and model training."""
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.header("◊ ML Price Predictions")
+        st.markdown("""
+        <h1 style='color: #4ecdc4; margin: 0 0 20px 0; display: flex; align-items: center;'>
+            <span class='material-symbols-outlined' style='margin-right: 12px; font-size: 32px;'>psychology</span>
+            ML Price Predictions
+        </h1>
+        """, unsafe_allow_html=True)
     with col2:
-        if st.button("◐ Refresh Predictions", use_container_width=True):
+        if st.button("⟳ Refresh Predictions", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
     
@@ -735,18 +817,18 @@ def show_predictions():
         from ml.prediction_service import PredictionService
         prediction_service = PredictionService()
     except ImportError as e:
-        st.error(f"◊ Could not import prediction service: {e}")
+        st.error(f"⊗ Could not import prediction service: {e}")
         st.info("Please ensure all ML dependencies are installed.")
         return
     
     # Show last update time
-    st.caption(f"◐ Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
+    st.caption(f"⟳ Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
     
     # Show current status
-    st.info("◊ **Current Status**: Using mock predictions (TensorFlow not available). Predictions are realistic but not trained on your specific data. To train real models, install TensorFlow with Python 3.9-3.11.")
+    st.info("◉ **Current Status**: Using mock predictions (TensorFlow not available). Predictions are realistic but not trained on your specific data. To train real models, install TensorFlow with Python 3.9-3.11.")
     
     # Prediction controls
-    st.markdown("### ◈ Prediction Controls")
+    st.markdown("### ↗ Prediction Controls")
     
     col1, col2, col3 = st.columns([2, 1, 1])
     
@@ -766,7 +848,7 @@ def show_predictions():
         )
     
     with col3:
-        if st.button("◈ Train Model", use_container_width=True):
+        if st.button("◉ Train Model", use_container_width=True):
             with st.spinner("Training model... This may take a few minutes."):
                 if selected_symbol == 'All':
                     st.info("Please select a specific cryptocurrency to train its model.")
@@ -776,14 +858,14 @@ def show_predictions():
                         st.success(f"◉ Model trained successfully for {selected_symbol}!")
                         st.json(result)
                     else:
-                        st.error(f"◊ Training failed: {result['message']}")
+                        st.error(f"⊗ Training failed: {result['message']}")
                         if "TensorFlow" in result['message']:
                             st.info("◉ **Solution**: Install TensorFlow with Python 3.9-3.11 to train real models.")
-                            st.info("◈ **What happened**: The system successfully fetched real data and calculated features, but failed at the TensorFlow model creation step.")
+                            st.info("◉ **What happened**: The system successfully fetched real data and calculated features, but failed at the TensorFlow model creation step.")
     
     # Train all models button
-    st.markdown("### ◈ Train All Models")
-    if st.button("◈ Train All Models", type="primary", use_container_width=True):
+    st.markdown("### ◉ Train All Models")
+    if st.button("◉ Train All Models", type="primary", use_container_width=True):
         with st.spinner("Training all models... This may take several minutes."):
             try:
                 results = prediction_service.train_all_models()
@@ -796,29 +878,29 @@ def show_predictions():
                     if result['status'] == 'success':
                         st.success(f"◉ {result['symbol']}: {result['message']}")
                     else:
-                        st.error(f"◊ {result['symbol']}: {result['message']}")
+                        st.error(f"⊗ {result['symbol']}: {result['message']}")
                         
             except Exception as e:
-                st.error(f"◊ Training failed: {e}")
+                st.error(f"⊗ Training failed: {e}")
                 st.info("◉ **Solution**: Install TensorFlow with Python 3.9-3.11 to train real models.")
                 
                 # Show what actually happened
-                st.info("◈ **What happened**: The system successfully fetched real data and calculated features, but failed at the TensorFlow model creation step.")
+                st.info("◉ **What happened**: The system successfully fetched real data and calculated features, but failed at the TensorFlow model creation step.")
                 st.info("◉ **Data processed**: 366 days of real market data with 11 technical indicators")
-                st.info("◐ **Sequences created**: 352 training sequences ready for LSTM training")
-                st.info("◊ **Missing**: TensorFlow library for neural network training")
+                st.info("⟳ **Sequences created**: 352 training sequences ready for LSTM training")
+                st.info("⊗ **Missing**: TensorFlow library for neural network training")
     
     st.markdown("---")
     
     # Generate predictions
-    with st.spinner("◊ Generating predictions..."):
+    with st.spinner("◉ Generating predictions..."):
         if selected_symbol == 'All':
             predictions = prediction_service.get_all_predictions(days_ahead)
         else:
             predictions = [prediction_service.get_prediction(selected_symbol, days_ahead)]
     
     # Display predictions with portfolio-style cards
-    st.markdown("### ◉ Price Predictions")
+    st.markdown("### ↗ Price Predictions")
     
     if not predictions:
         st.warning("No predictions available. Please try again.")
@@ -835,17 +917,17 @@ def show_predictions():
                 
                 # Determine colors based on prediction
                 if pred['predicted_return'] > 0.02:  # > 2% gain
-                    border_color = "#00ff00"
-                    return_color = "#00ff00"
-                    return_symbol = "◈"
+                    border_color = "#00ff88"
+                    return_color = "#00ff88"
+                    return_symbol = "↗"
                 elif pred['predicted_return'] < -0.02:  # < -2% loss
-                    border_color = "#ff4444"
-                    return_color = "#ff4444"
-                    return_symbol = "◊"
+                    border_color = "#ff4757"
+                    return_color = "#ff4757"
+                    return_symbol = "↘"
                 else:  # Neutral
-                    border_color = "#1f77b4"
-                    return_color = "#1f77b4"
-                    return_symbol = "◐"
+                    border_color = "#4ecdc4"
+                    return_color = "#4ecdc4"
+                    return_symbol = "→"
                 
                 # Confidence color
                 conf_color = "#00ff00" if pred['confidence'] > 0.7 else "#ffaa00" if pred['confidence'] > 0.5 else "#ff4444"
@@ -870,11 +952,11 @@ def show_predictions():
                         
                         # Return percentage with color
                         if pred['predicted_return'] > 0.02:
-                            st.success(f"◈ **+{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
+                            st.success(f"↗ **+{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
                         elif pred['predicted_return'] < -0.02:
-                            st.error(f"◊ **{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
+                            st.error(f"↘ **{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
                         else:
-                            st.info(f"◐ **{pred['predicted_return']*100:+.2f}%** ({days_ahead}d forecast)")
+                            st.info(f"→ **{pred['predicted_return']*100:+.2f}%** ({days_ahead}d forecast)")
                         
                         # Model info
                         st.caption(f"Model: {pred['model_version']} | Status: {pred['status']}")
@@ -884,7 +966,7 @@ def show_predictions():
     st.markdown("---")
     
     # Prediction table
-    st.markdown("### ◊ Detailed Predictions")
+    st.markdown("### ◉ Detailed Predictions")
     
     # Prepare data for table
     table_data = []
@@ -905,7 +987,7 @@ def show_predictions():
     
     # Model training section
     st.markdown("---")
-    st.markdown("### ◈ Model Training")
+    st.markdown("### ◉ Model Training")
     
     col1, col2 = st.columns([2, 1])
     
@@ -921,12 +1003,12 @@ def show_predictions():
         """)
     
     with col2:
-        if st.button("◈ Train All Models", use_container_width=True):
+        if st.button("◉ Train All Models", use_container_width=True):
             with st.spinner("Training all models... This will take several minutes."):
                 results = prediction_service.train_all_models(days=365, epochs=50)
                 
                 # Display results with better formatting
-                st.markdown("#### ◈ Training Results:")
+                st.markdown("#### ◉ Training Results:")
                 
                 successful = 0
                 failed = 0
@@ -938,7 +1020,7 @@ def show_predictions():
                         with st.expander(f"◉ {symbol} Training Details"):
                             st.json(result)
                     else:
-                        st.error(f"◊ **{symbol}**: {result['message']}")
+                        st.error(f"⊗ **{symbol}**: {result['message']}")
                         failed += 1
                         
                         # Show solution for TensorFlow error
@@ -949,11 +1031,11 @@ def show_predictions():
                 if successful > 0:
                     st.success(f"◉ **{successful} models trained successfully!**")
                 if failed > 0:
-                    st.warning(f"◊ **{failed} models failed** - TensorFlow installation required")
+                    st.warning(f"⊗ **{failed} models failed** - TensorFlow installation required")
                     
                 # Show installation instructions
                 if failed > 0:
-                    with st.expander("◈ How to Install TensorFlow for Real Model Training"):
+                    with st.expander("◉ How to Install TensorFlow for Real Model Training"):
                         st.markdown("""
                         **To train real LSTM models, you need TensorFlow:**
                         
@@ -987,7 +1069,7 @@ def show_predictions():
     model_status = []
     for symbol in ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP']:
         has_model = prediction_service._has_model(symbol)
-        status = "◉ Trained" if has_model else "◊ Not Trained"
+        status = "◉ Trained" if has_model else "⊗ Not Trained"
         model_status.append({
             'Symbol': symbol,
             'Status': status,
@@ -999,7 +1081,7 @@ def show_predictions():
     st.dataframe(status_df, width='stretch', hide_index=True)
     
     # Information section
-    with st.expander("◈ About ML Predictions"):
+    with st.expander("◉ About ML Predictions"):
         st.markdown("""
         **How It Works:**
         
@@ -1027,17 +1109,22 @@ def show_predictions():
 
 def show_rebalancing():
     """Display portfolio rebalancing interface."""
-    st.header("◐ Portfolio Rebalancing")
+    st.markdown("""
+    <h1 style='color: #4ecdc4; margin: 0 0 20px 0; display: flex; align-items: center;'>
+        <span class='material-symbols-outlined' style='margin-right: 12px; font-size: 32px;'>tune</span>
+        Portfolio Rebalancing
+    </h1>
+    """, unsafe_allow_html=True)
     
     # Import rebalancing service
     try:
         from ml.portfolio_rebalancer import PortfolioRebalancer
     except ImportError as e:
-        st.error(f"◊ Could not import portfolio rebalancer: {e}")
+        st.error(f"⊗ Could not import portfolio rebalancer: {e}")
         return
     
     # Initialize rebalancer
-    paper_trading = st.sidebar.checkbox("◐ Paper Trading Mode", value=True, help="Enable paper trading to test strategies without real money")
+    paper_trading = st.sidebar.checkbox("◉ Paper Trading Mode", value=True, help="Enable paper trading to test strategies without real money")
     rebalancer = PortfolioRebalancer(paper_trading=paper_trading)
     
     # Portfolio value input
@@ -1055,10 +1142,10 @@ def show_rebalancing():
         )
     
     with col2:
-        use_ml = st.checkbox("◊ Use ML Predictions", value=True, help="Enhance allocation with ML predictions")
+        use_ml = st.checkbox("◉ Use ML Predictions", value=True, help="Enhance allocation with ML predictions")
     
     # Advanced configuration
-    with st.expander("◈ Advanced Configuration"):
+    with st.expander("◉ Advanced Configuration"):
         col1, col2 = st.columns(2)
         
         with col1:
@@ -1118,7 +1205,7 @@ def show_rebalancing():
             )
         
         # Update configuration
-        if st.button("💾 Save Configuration"):
+        if st.button("◉ Save Configuration"):
             rebalancer.config.update({
                 'max_position_weight': max_position / 100,
                 'min_position_weight': min_position / 100,
@@ -1131,12 +1218,12 @@ def show_rebalancing():
             if rebalancer.save_config():
                 st.success("◉ Configuration saved successfully!")
             else:
-                st.error("◊ Failed to save configuration")
+                st.error("⊗ Failed to save configuration")
     
     st.markdown("---")
     
     # Get rebalancing summary
-    with st.spinner("◐ Calculating rebalancing recommendations..."):
+    with st.spinner("◉ Calculating rebalancing recommendations..."):
         summary = rebalancer.get_rebalancing_summary()
     
     # Quick status overview
@@ -1147,7 +1234,7 @@ def show_rebalancing():
     if total_orders == 0:
         st.success("◉ **Portfolio is perfectly balanced!** No rebalancing needed.")
     elif max_drift > 5:
-        st.warning(f"◊ **Significant drift detected** - {max_drift:.1f}% max drift requires rebalancing")
+        st.warning(f"△ **Significant drift detected** - {max_drift:.1f}% max drift requires rebalancing")
     elif total_fees > 100:
         st.info(f"◉ **High trading fees** - ${total_fees:.2f} total cost for rebalancing")
     else:
@@ -1182,7 +1269,7 @@ def show_rebalancing():
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("#### ◈ Current Allocation")
+        st.markdown("#### ◉ Current Allocation")
         current_df = pd.DataFrame([
             {'Symbol': symbol, 'Weight': weight*100}
             for symbol, weight in summary['current_allocation'].items()
@@ -1199,7 +1286,7 @@ def show_rebalancing():
         st.plotly_chart(fig_current, use_container_width=True)
     
     with col2:
-        st.markdown("#### ◈ Target Allocation")
+        st.markdown("#### ◉ Target Allocation")
         target_df = pd.DataFrame([
             {'Symbol': symbol, 'Weight': weight*100}
             for symbol, weight in summary['target_allocation'].items()
@@ -1370,11 +1457,11 @@ def show_rebalancing():
     st.markdown("### ◉ Recommendations")
     
     for recommendation in summary['recommendations']:
-        if "◊" in recommendation:
+        if "⊗" in recommendation:
             st.warning(recommendation)
         elif "◉" in recommendation:
             st.info(recommendation)
-        elif "◊" in recommendation and "ALERT" in recommendation:
+        elif "△" in recommendation and "ALERT" in recommendation:
             st.error(recommendation)
         else:
             st.success(recommendation)
@@ -1382,12 +1469,12 @@ def show_rebalancing():
     st.markdown("---")
     
     # Execution section
-    st.markdown("### ◈ Execute Rebalancing")
+    st.markdown("### ▶ Execute Rebalancing")
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        if st.button("◐ Execute Paper Trading", type="primary", use_container_width=True):
+        if st.button("▶ Execute Paper Trading", type="primary", use_container_width=True):
             with st.spinner("Executing paper trading rebalancing..."):
                 result = rebalancer.execute_rebalancing(portfolio_value)
                 
@@ -1401,14 +1488,14 @@ def show_rebalancing():
                         for order in result['orders']:
                             st.json(order)
                 else:
-                    st.error(f"◊ Execution failed: {result.get('message', 'Unknown error')}")
+                    st.error(f"⊗ Execution failed: {result.get('message', 'Unknown error')}")
     
     with col2:
-        if st.button("◊ Execute Live Trading", type="secondary", use_container_width=True, disabled=True):
-            st.warning("◊ Live trading not implemented yet - use paper trading mode")
+        if st.button("▶ Execute Live Trading", type="secondary", use_container_width=True, disabled=True):
+            st.warning("△ Live trading not implemented yet - use paper trading mode")
     
     # Strategy information
-    with st.expander("◈ Rebalancing Strategy Details"):
+    with st.expander("◉ Rebalancing Strategy Details"):
         st.markdown("""
         **Strategy Overview:**
     
@@ -1730,16 +1817,16 @@ def main():
             page_param = query_params['page']
             if page_param in ["portfolio", "prices", "predictions", "rebalancing"]:
                 page_map = {
-                    "portfolio": "◉ Portfolio",
-                    "prices": "◈ Live Prices", 
-                    "predictions": "◊ Predictions",
-                    "rebalancing": "◐ Rebalancing"
+                    "portfolio": "⚡ Portfolio",
+                    "prices": "↗ Live Prices", 
+                    "predictions": "◉ ML Predictions",
+                    "rebalancing": "◉ Rebalancing"
                 }
                 st.session_state.current_page = page_map[page_param]
             else:
-                st.session_state.current_page = "◉ Portfolio"
+                st.session_state.current_page = "⚡ Portfolio"
         else:
-            st.session_state.current_page = "◉ Portfolio"
+            st.session_state.current_page = "⚡ Portfolio"
     
     # Enhanced sidebar navigation
     st.sidebar.markdown("""
@@ -1752,41 +1839,46 @@ def main():
         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     '>
         <h2 style='
-            color: #45b7d1;
+            color: #4ecdc4;
             text-align: center;
             margin: 0 0 15px 0;
             font-size: 24px;
             font-weight: bold;
-        '>NOVA • Crypto ML Console</h2>
+        '><span class="material-symbols-outlined" style="margin-right: 8px; font-size: 24px;">smart_toy</span>NOVA Console</h2>
         <p style='
             color: #888;
             text-align: center;
             margin: 0;
             font-size: 14px;
-        '>Advanced Trading Analytics</p>
+        '>AI-Powered Trading Analytics</p>
     </div>
     """, unsafe_allow_html=True)
     
-    st.sidebar.markdown("### ◈ Navigation")
+    st.sidebar.markdown("""
+    <h3 style='color: #4ecdc4; margin: 0 0 15px 0; display: flex; align-items: center;'>
+        <span class='material-symbols-outlined' style='margin-right: 8px; font-size: 20px;'>apps</span>
+        Navigation
+    </h3>
+    """, unsafe_allow_html=True)
     
     # Create proper navigation buttons instead of radio buttons
     def navigate_to_page(page_name):
         st.session_state.current_page = page_name
         page_url_map = {
-            "◉ Portfolio": "portfolio",
-            "◈ Live Prices": "prices", 
-            "◊ Predictions": "predictions",
-            "◐ Rebalancing": "rebalancing"
+            "⚡ Portfolio": "portfolio",
+            "↗ Live Prices": "prices", 
+            "◉ ML Predictions": "predictions",
+            "◉ Rebalancing": "rebalancing"
         }
         st.query_params.page = page_url_map[page_name]
         st.rerun()
     
     # Clean, intuitive navigation buttons
     nav_buttons = [
-        ("◉ Portfolio", "Your crypto holdings & performance"),
-        ("◈ Live Prices", "Real-time market data & charts"),
-        ("◊ Predictions", "ML-powered price forecasts"),
-        ("◐ Rebalancing", "Smart portfolio rebalancing")
+        ("⚡ Portfolio", "Your crypto holdings & performance"),
+        ("↗ Live Prices", "Real-time market data & charts"),
+        ("◉ ML Predictions", "ML-powered price forecasts"),
+        ("◉ Rebalancing", "Smart portfolio rebalancing")
     ]
     
     for page_name, description in nav_buttons:
@@ -1831,10 +1923,10 @@ def main():
         
         # Update URL parameters
         page_url_map = {
-            "◉ Portfolio": "portfolio",
-            "◈ Live Prices": "prices", 
-            "◊ Predictions": "predictions",
-            "◐ Rebalancing": "rebalancing"
+            "⚡ Portfolio": "portfolio",
+            "↗ Live Prices": "prices", 
+            "◉ ML Predictions": "predictions",
+            "◉ Rebalancing": "rebalancing"
         }
         
         st.query_params.page = page_url_map[page]
@@ -1843,13 +1935,18 @@ def main():
     st.sidebar.markdown("---")
     
     # Compact system status
-    st.sidebar.markdown("### ◊ Status")
+    st.sidebar.markdown("""
+    <h3 style='color: #4ecdc4; margin: 0 0 15px 0; display: flex; align-items: center;'>
+        <span class='material-symbols-outlined' style='margin-right: 8px; font-size: 20px;'>psychology</span>
+        Status
+    </h3>
+    """, unsafe_allow_html=True)
     
     # Single status card with key indicators
     st.sidebar.markdown("""
     <div style='
         background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
-        border: 1px solid #45b7d1;
+        border: 1px solid #4ecdc4;
         border-radius: 12px;
         padding: 16px;
         margin: 10px 0;
@@ -1857,17 +1954,17 @@ def main():
     '>
         <div style='display: flex; justify-content: space-around; margin-bottom: 12px;'>
             <div style='text-align: center;'>
-                <div style='color: #4ecdc4; font-size: 18px; margin-bottom: 4px;'>◉</div>
+                <div style='color: #4ecdc4; font-size: 18px; margin-bottom: 4px;' class='material-symbols-outlined'>check_circle</div>
                 <div style='color: white; font-size: 11px; font-weight: bold;'>Kraken</div>
                 <div style='color: #888; font-size: 9px;'>Connected</div>
             </div>
             <div style='text-align: center;'>
-                <div style='color: #ff6b6b; font-size: 18px; margin-bottom: 4px;'>⏳</div>
+                <div style='color: #ff6b6b; font-size: 18px; margin-bottom: 4px;' class='material-symbols-outlined'>model_training</div>
                 <div style='color: white; font-size: 11px; font-weight: bold;'>ML</div>
                 <div style='color: #888; font-size: 9px;'>Training</div>
             </div>
             <div style='text-align: center;'>
-                <div style='color: #45b7d1; font-size: 18px; margin-bottom: 4px;'>◐</div>
+                <div style='color: #4ecdc4; font-size: 18px; margin-bottom: 4px;' class='material-symbols-outlined'>shield</div>
                 <div style='color: white; font-size: 11px; font-weight: bold;'>Paper</div>
                 <div style='color: #888; font-size: 9px;'>Safe</div>
             </div>
@@ -1877,7 +1974,12 @@ def main():
     
     # Enhanced about section
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### ◈ About")
+    st.sidebar.markdown("""
+    <h3 style='color: #4ecdc4; margin: 0 0 15px 0; display: flex; align-items: center;'>
+        <span class='material-symbols-outlined' style='margin-right: 8px; font-size: 20px;'>info</span>
+        About
+    </h3>
+    """, unsafe_allow_html=True)
     st.sidebar.markdown("""
     <div style='
         background: linear-gradient(135deg, #0e1117 0%, #1a1a1a 100%);
@@ -1895,7 +1997,12 @@ def main():
     """, unsafe_allow_html=True)
     
     # Progress indicator
-    st.sidebar.markdown("### ◉ System Progress")
+    st.sidebar.markdown("""
+    <h3 style='color: #4ecdc4; margin: 0 0 15px 0; display: flex; align-items: center;'>
+        <span class='material-symbols-outlined' style='margin-right: 8px; font-size: 20px;'>analytics</span>
+        System Progress
+    </h3>
+    """, unsafe_allow_html=True)
     
     # Mock progress data
     progress_data = {
@@ -1970,25 +2077,30 @@ def main():
     
     
     # Route to selected page
-    if page == "◉ Portfolio":
+    if page == "⚡ Portfolio":
         show_portfolio_view()
-    elif page == "◈ Live Prices":
+    elif page == "↗ Live Prices":
         show_live_prices()
-    elif page == "◊ Predictions":
+    elif page == "◉ ML Predictions":
         show_predictions()
-    elif page == "◐ Rebalancing":
+    elif page == "◉ Rebalancing":
         show_rebalancing()
     
     # Enhanced refresh controls
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### ◐ Refresh Controls")
+    st.sidebar.markdown("""
+    <h3 style='color: #4ecdc4; margin: 0 0 15px 0; display: flex; align-items: center;'>
+        <span class='material-symbols-outlined' style='margin-right: 8px; font-size: 20px;'>refresh</span>
+        Refresh Controls
+    </h3>
+    """, unsafe_allow_html=True)
     
     # Refresh button with better styling
-    if st.sidebar.button("◐ Refresh Data", use_container_width=True, type="primary"):
+    if st.sidebar.button("⟳ Refresh Data", use_container_width=True, type="primary"):
         st.rerun()
     
     # Auto-refresh toggle
-    auto_refresh = st.sidebar.checkbox("◐ Auto-refresh (60s)", value=False, help="Automatically refresh data every 60 seconds")
+    auto_refresh = st.sidebar.checkbox("⟳ Auto-refresh (60s)", value=False, help="Automatically refresh data every 60 seconds")
     
     if auto_refresh:
         time.sleep(60)
@@ -1996,7 +2108,7 @@ def main():
     
     # Quick refresh control
     st.sidebar.markdown("---")
-    if st.sidebar.button("◐ Refresh All Data", use_container_width=True, type="primary"):
+    if st.sidebar.button("⟳ Refresh All Data", use_container_width=True, type="primary"):
         st.rerun()
 
 
