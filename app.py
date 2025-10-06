@@ -1239,20 +1239,128 @@ def show_rebalancing():
             hide_index=True
         )
         
-        # Order summary
+        # Order summary with improved styling
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Total Orders", len(summary['orders']))
+            total_orders = len(summary['orders'])
+            order_color = "#ff6b6b" if total_orders > 8 else "#ffa726" if total_orders > 4 else "#4caf50"
+            order_status = "Many Trades" if total_orders > 8 else "Moderate" if total_orders > 4 else "Few Trades"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid {order_color};
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                margin: 10px 0;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            ">
+                <div style="font-size: 28px; font-weight: bold; color: {order_color}; margin-bottom: 10px; text-shadow: 0 0 10px {order_color}40;">
+                    {total_orders}
+                </div>
+                <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                    Total Orders
+                </div>
+                <div style="font-size: 12px; color: {order_color}; margin-bottom: 5px; font-weight: 500;">
+                    {order_status}
+                </div>
+                <div style="font-size: 11px; color: #cccccc;">
+                    Rebalancing trades needed
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         
         with col2:
-            st.metric("Total Fees", f"${summary['metrics']['total_fees']:.2f}")
+            total_fees = summary['metrics']['total_fees']
+            fee_color = "#ff6b6b" if total_fees > 100 else "#ffa726" if total_fees > 50 else "#4caf50"
+            fee_status = "High Cost" if total_fees > 100 else "Moderate" if total_fees > 50 else "Low Cost"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid {fee_color};
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                margin: 10px 0;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            ">
+                <div style="font-size: 28px; font-weight: bold; color: {fee_color}; margin-bottom: 10px; text-shadow: 0 0 10px {fee_color}40;">
+                    ${total_fees:.2f}
+                </div>
+                <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                    Total Fees
+                </div>
+                <div style="font-size: 12px; color: {fee_color}; margin-bottom: 5px; font-weight: 500;">
+                    {fee_status}
+                </div>
+                <div style="font-size: 11px; color: #cccccc;">
+                    Rebalancing cost
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         
         with col3:
-            st.metric("Buy Orders", summary['metrics']['buy_orders'])
+            buy_orders = summary['metrics']['buy_orders']
+            buy_color = "#4caf50" if buy_orders > 0 else "#666"
+            buy_status = "Buying" if buy_orders > 0 else "No Buys"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid {buy_color};
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                margin: 10px 0;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            ">
+                <div style="font-size: 28px; font-weight: bold; color: {buy_color}; margin-bottom: 10px; text-shadow: 0 0 10px {buy_color}40;">
+                    {buy_orders}
+                </div>
+                <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                    Buy Orders
+                </div>
+                <div style="font-size: 12px; color: {buy_color}; margin-bottom: 5px; font-weight: 500;">
+                    {buy_status}
+                </div>
+                <div style="font-size: 11px; color: #cccccc;">
+                    Positions to increase
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         
         with col4:
-            st.metric("Sell Orders", summary['metrics']['sell_orders'])
+            sell_orders = summary['metrics']['sell_orders']
+            sell_color = "#ff6b6b" if sell_orders > 0 else "#666"
+            sell_status = "Selling" if sell_orders > 0 else "No Sells"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid {sell_color};
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                margin: 10px 0;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            ">
+                <div style="font-size: 28px; font-weight: bold; color: {sell_color}; margin-bottom: 10px; text-shadow: 0 0 10px {sell_color}40;">
+                    {sell_orders}
+                </div>
+                <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                    Sell Orders
+                </div>
+                <div style="font-size: 12px; color: {sell_color}; margin-bottom: 5px; font-weight: 500;">
+                    {sell_status}
+                </div>
+                <div style="font-size: 11px; color: #cccccc;">
+                    Positions to decrease
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
         
     else:
         st.success("◉ Portfolio is already balanced - no rebalancing needed!")
@@ -1332,44 +1440,128 @@ def show_rebalancing():
     st.markdown("---")
     st.markdown("### ◉ Portfolio Health Metrics")
     
-    # Create enhanced KPI cards
+    # Create enhanced KPI cards with better styling
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         max_drift = summary['metrics']['max_drift'] * 100
-        drift_icon = "◊" if max_drift > 5 else "◉" if max_drift > 2 else "◉"
+        drift_color = "#ff6b6b" if max_drift > 5 else "#ffa726" if max_drift > 2 else "#4caf50"
+        drift_status = "High Risk" if max_drift > 5 else "Moderate" if max_drift > 2 else "Good"
         
-        with st.container():
-            st.markdown(f"### {drift_icon} Max Drift")
-            st.metric("", f"{max_drift:.1f}%", help="Largest allocation deviation")
-            st.caption("Largest allocation deviation")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid {drift_color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 28px; font-weight: bold; color: {drift_color}; margin-bottom: 10px; text-shadow: 0 0 10px {drift_color}40;">
+                {max_drift:.1f}%
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                Max Drift
+            </div>
+            <div style="font-size: 12px; color: {drift_color}; margin-bottom: 5px; font-weight: 500;">
+                {drift_status}
+            </div>
+            <div style="font-size: 11px; color: #cccccc;">
+                Largest allocation deviation
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
         avg_drift = summary['metrics']['avg_drift'] * 100
-        avg_icon = "◊" if avg_drift > 3 else "◉" if avg_drift > 1 else "◉"
+        avg_color = "#ff6b6b" if avg_drift > 3 else "#ffa726" if avg_drift > 1 else "#4caf50"
+        avg_status = "High Risk" if avg_drift > 3 else "Moderate" if avg_drift > 1 else "Good"
         
-        with st.container():
-            st.markdown(f"### {avg_icon} Avg Drift")
-            st.metric("", f"{avg_drift:.1f}%", help="Average deviation")
-            st.caption("Average deviation")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid {avg_color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 28px; font-weight: bold; color: {avg_color}; margin-bottom: 10px; text-shadow: 0 0 10px {avg_color}40;">
+                {avg_drift:.1f}%
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                Avg Drift
+            </div>
+            <div style="font-size: 12px; color: {avg_color}; margin-bottom: 5px; font-weight: 500;">
+                {avg_status}
+            </div>
+            <div style="font-size: 11px; color: #cccccc;">
+                Average deviation
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col3:
         total_fees = summary['metrics']['total_fees']
-        fee_icon = "◉" if total_fees > 100 else "◐" if total_fees > 50 else "◉"
+        fee_color = "#ff6b6b" if total_fees > 100 else "#ffa726" if total_fees > 50 else "#4caf50"
+        fee_status = "High Cost" if total_fees > 100 else "Moderate" if total_fees > 50 else "Low Cost"
         
-        with st.container():
-            st.markdown(f"### {fee_icon} Trading Fees")
-            st.metric("", f"${total_fees:.2f}", help="Total rebalancing cost")
-            st.caption("Total rebalancing cost")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid {fee_color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 28px; font-weight: bold; color: {fee_color}; margin-bottom: 10px; text-shadow: 0 0 10px {fee_color}40;">
+                ${total_fees:.2f}
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                Trading Fees
+            </div>
+            <div style="font-size: 12px; color: {fee_color}; margin-bottom: 5px; font-weight: 500;">
+                {fee_status}
+            </div>
+            <div style="font-size: 11px; color: #cccccc;">
+                Total rebalancing cost
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col4:
         fee_percentage = (summary['metrics']['total_fees'] / portfolio_value) * 100
-        fee_pct_icon = "◊" if fee_percentage > 0.5 else "◉" if fee_percentage > 0.2 else "◉"
+        fee_pct_color = "#ff6b6b" if fee_percentage > 0.5 else "#ffa726" if fee_percentage > 0.2 else "#4caf50"
+        fee_pct_status = "High %" if fee_percentage > 0.5 else "Moderate" if fee_percentage > 0.2 else "Low %"
         
-        with st.container():
-            st.markdown(f"### {fee_pct_icon} Fee %")
-            st.metric("", f"{fee_percentage:.2f}%", help="Fees vs portfolio")
-            st.caption("Fees vs portfolio")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid {fee_pct_color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 28px; font-weight: bold; color: {fee_pct_color}; margin-bottom: 10px; text-shadow: 0 0 10px {fee_pct_color}40;">
+                {fee_percentage:.2f}%
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                Fee %
+            </div>
+            <div style="font-size: 12px; color: {fee_pct_color}; margin-bottom: 5px; font-weight: 500;">
+                {fee_pct_status}
+            </div>
+            <div style="font-size: 11px; color: #cccccc;">
+                Fees vs portfolio value
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Additional metrics row
     st.markdown("### ◉ Rebalancing Summary")
@@ -1378,30 +1570,93 @@ def show_rebalancing():
     
     with col1:
         total_orders = len(summary['orders'])
-        order_icon = "◉" if total_orders > 8 else "◐" if total_orders > 4 else "◉"
+        order_color = "#ff6b6b" if total_orders > 8 else "#ffa726" if total_orders > 4 else "#4caf50"
+        order_status = "Many Trades" if total_orders > 8 else "Moderate" if total_orders > 4 else "Few Trades"
         
-        with st.container():
-            st.markdown(f"### {order_icon} Total Orders")
-            st.metric("", f"{total_orders}", help="Rebalancing trades")
-            st.caption("Rebalancing trades")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid {order_color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 28px; font-weight: bold; color: {order_color}; margin-bottom: 10px; text-shadow: 0 0 10px {order_color}40;">
+                {total_orders}
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                Total Orders
+            </div>
+            <div style="font-size: 12px; color: {order_color}; margin-bottom: 5px; font-weight: 500;">
+                {order_status}
+            </div>
+            <div style="font-size: 11px; color: #cccccc;">
+                Rebalancing trades needed
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
         buy_orders = summary['metrics']['buy_orders']
-        buy_icon = "◈" if buy_orders > 0 else "➖"
+        buy_color = "#4caf50" if buy_orders > 0 else "#666"
+        buy_status = "Buying" if buy_orders > 0 else "No Buys"
         
-        with st.container():
-            st.markdown(f"### {buy_icon} Buy Orders")
-            st.metric("", f"{buy_orders}", help="Positions to increase")
-            st.caption("Positions to increase")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid {buy_color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 28px; font-weight: bold; color: {buy_color}; margin-bottom: 10px; text-shadow: 0 0 10px {buy_color}40;">
+                {buy_orders}
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                Buy Orders
+            </div>
+            <div style="font-size: 12px; color: {buy_color}; margin-bottom: 5px; font-weight: 500;">
+                {buy_status}
+            </div>
+            <div style="font-size: 11px; color: #cccccc;">
+                Positions to increase
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col3:
         sell_orders = summary['metrics']['sell_orders']
-        sell_icon = "◊" if sell_orders > 0 else "➖"
+        sell_color = "#ff6b6b" if sell_orders > 0 else "#666"
+        sell_status = "Selling" if sell_orders > 0 else "No Sells"
         
-        with st.container():
-            st.markdown(f"### {sell_icon} Sell Orders")
-            st.metric("", f"{sell_orders}", help="Positions to decrease")
-            st.caption("Positions to decrease")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid {sell_color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 28px; font-weight: bold; color: {sell_color}; margin-bottom: 10px; text-shadow: 0 0 10px {sell_color}40;">
+                {sell_orders}
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                Sell Orders
+            </div>
+            <div style="font-size: 12px; color: {sell_color}; margin-bottom: 5px; font-weight: 500;">
+                {sell_status}
+            </div>
+            <div style="font-size: 11px; color: #cccccc;">
+                Positions to decrease
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col4:
         # Portfolio health score
@@ -1414,12 +1669,33 @@ def show_rebalancing():
         fee_score = max(0, 100 - (fee_pct * 200))     # Penalty for high fees
         health_score = (drift_score + fee_score) / 2
         
-        health_icon = "◊" if health_score < 60 else "◉" if health_score < 80 else "◉"
+        health_color = "#4caf50" if health_score > 80 else "#ffa726" if health_score > 60 else "#ff6b6b"
+        health_status = "Excellent" if health_score > 80 else "Good" if health_score > 60 else "Needs Attention"
         
-        with st.container():
-            st.markdown(f"### {health_icon} Health Score")
-            st.metric("", f"{health_score:.0f}", help="Portfolio balance")
-            st.caption("Portfolio balance")
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid {health_color};
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        ">
+            <div style="font-size: 28px; font-weight: bold; color: {health_color}; margin-bottom: 10px; text-shadow: 0 0 10px {health_color}40;">
+                {health_score:.0f}
+            </div>
+            <div style="font-size: 16px; font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                Health Score
+            </div>
+            <div style="font-size: 12px; color: {health_color}; margin-bottom: 5px; font-weight: 500;">
+                {health_status}
+            </div>
+            <div style="font-size: 11px; color: #cccccc;">
+                Overall portfolio health
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Drift analysis details
     with st.expander("◉ Detailed Drift Analysis"):
