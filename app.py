@@ -863,10 +863,34 @@ def show_predictions():
             st.cache_data.clear()
             st.rerun()
     
+    # ML Provider Selection
+    st.markdown("### ⚙️ ML Provider Configuration")
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        ml_provider = st.selectbox(
+            "ML Prediction Provider:",
+            options=["local", "vertex"],
+            format_func=lambda x: "🏠 Local (Mock)" if x == "local" else "☁️ Google Cloud (Vertex AI)",
+            help="Choose between local mock predictions or real Google Cloud ML predictions"
+        )
+    
+    with col2:
+        if ml_provider == "vertex":
+            # Check if training is complete
+            training_status = get_training_job_status()
+            if training_status == "JOB_STATE_SUCCEEDED":
+                st.success("✅ Model Ready")
+            elif training_status == "JOB_STATE_RUNNING":
+                st.info("🔄 Training...")
+            else:
+                st.warning("⏳ Model Pending")
+    
     # Initialize prediction service
     try:
         from ml.prediction_service import PredictionService
-        prediction_service = PredictionService()
+        prediction_service = PredictionService(provider=ml_provider)
     except ImportError as e:
         st.error(f"⊗ Could not import prediction service: {e}")
         st.info("Please ensure all ML dependencies are installed.")
@@ -876,7 +900,35 @@ def show_predictions():
     st.caption(f"⟳ Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
     
     # Show current status
-    st.info("◉ **Current Status**: Using mock predictions (TensorFlow not available). Predictions are realistic but not trained on your specific data. To train real models, install TensorFlow with Python 3.9-3.11.")
+    if ml_provider == "vertex":
+        if prediction_service.vertex_service:
+            st.success("☁️ **Using Google Cloud Vertex AI** - Real ML predictions from trained models!")
+        else:
+            st.warning("⚠️ **Vertex AI Not Configured** - Deploy prediction endpoint first.")
+            
+            # Show deployment instructions
+            with st.expander("🚀 Deploy Vertex AI Prediction Endpoint"):
+                st.markdown("""
+                **To enable real ML predictions, deploy the prediction endpoint:**
+                
+                1. **Wait for training to complete** (check Cloud Progress tab)
+                2. **Deploy the endpoint:**
+                   ```bash
+                   bash gcp/scripts/deploy_budget_endpoint.sh
+                   ```
+                3. **Set environment variable:**
+                   ```bash
+                   export VERTEX_ENDPOINT_ID=your-endpoint-id
+                   ```
+                4. **Refresh this page** to see real predictions!
+                
+                **Current Training Status:** Check the "☁️ Cloud Progress" tab for updates.
+                """)
+            
+            # Fall back to local predictions for now
+            st.info("🏠 **Currently showing local predictions** - Deploy endpoint above for real ML predictions.")
+    else:
+        st.info("🏠 **Using Local Mock Predictions** - Switch to Vertex AI for real ML predictions.")
     
     # Prediction controls
     st.markdown("### ↗ Prediction Controls")
