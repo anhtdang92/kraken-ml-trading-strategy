@@ -9,6 +9,7 @@ tensorflow>=2.13.0
 scikit-learn>=1.3.0
 
 # Google Cloud Platform
+google-cloud-aiplatform>=1.38.0
 google-cloud-bigquery>=3.38.0
 google-cloud-storage>=3.4.0
 google-cloud-secret-manager>=2.16.0

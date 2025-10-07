@@ -1,13 +1,31 @@
-# Crypto ML Trading Dashboard
+# Crypto ML Trading Dashboard - Cloud-First
 
-A machine learning-powered cryptocurrency trading application that uses LSTM neural networks to predict price movements and automatically rebalance a crypto portfolio using the Kraken API. Built with Streamlit, TensorFlow, and Google Cloud Platform.
+A revolutionary cryptocurrency trading system that leverages Google Cloud's Vertex AI for all ML operations, requiring **zero local ML dependencies**. Everything runs in the cloud for maximum efficiency and cost optimization.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)
+![Cloud-First](https://img.shields.io/badge/Cloud-First-green.svg)
 ![GCP](https://img.shields.io/badge/Google%20Cloud-Platform-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-## 🎉 Current Status: Production-Ready ML Infrastructure!
+## 🎉 Current Status: Production-Ready Cloud-First ML Infrastructure!
+
+### 🌟 **Revolutionary Innovation: Zero Local ML Dependencies**
+
+This project proves that you **don't need TensorFlow, PyTorch, or any heavy ML libraries installed locally**. Everything runs in Google Cloud using pre-built containers!
+
+**What you need locally:**
+- ✅ Basic Python (for Streamlit dashboard)
+- ✅ `gcloud` CLI
+- ✅ Your trading logic code
+
+**What you DON'T need locally:**
+- ❌ TensorFlow installation
+- ❌ GPU setup
+- ❌ Heavy ML dependencies
+- ❌ Complex environment management
+- ❌ Docker builds for ML
+
+## 🚀 **Key Benefits:**
 
 **Last Updated:** January 15, 2025
 

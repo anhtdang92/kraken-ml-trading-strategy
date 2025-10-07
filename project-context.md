@@ -1,14 +1,14 @@
 # Project Context: Crypto ML Trading Dashboard
 
-**Last Updated**: January 15, 2025  
-**Project Status**: Phase 1 Complete + GCP ML Infrastructure Ready  
-**Current Phase**: Production-Ready ML Infrastructure with Vertex AI
+**Last Updated**: October 6, 2025  
+**Project Status**: Cloud-First ML Infrastructure Complete  
+**Current Phase**: Production-Ready Cloud-Powered Trading System
 
 ---
 
 ## 📋 Project Summary
 
-A machine learning-powered cryptocurrency trading system that uses LSTM neural networks to predict weekly price movements and automatically rebalance a portfolio via Kraken API. The system features a Streamlit dashboard for visualization, GCP-based cloud infrastructure, and QuantConnect backtesting integration.
+A cloud-first cryptocurrency trading system that leverages Google Cloud's Vertex AI for ML predictions and automatically rebalances portfolios via Kraken API. The system features a Streamlit dashboard with cloud integration, requiring no local ML dependencies - everything runs in Google Cloud for maximum efficiency and cost optimization.
 
 **Primary Goal**: Create a profitable, automated crypto trading system while learning ML, cloud deployment, and quantitative finance.
 
@@ -45,16 +45,16 @@ A machine learning-powered cryptocurrency trading system that uses LSTM neural n
 └─────────────────┘
 ```
 
-### Cloud Architecture (GCP)
+### Cloud-First Architecture (GCP)
 
-- **Cloud Run**: Hosts Streamlit application (containerized)
-- **Vertex AI**: Trains LSTM models and serves predictions via endpoints
-- **BigQuery**: Stores historical data, trading logs, model metrics (6 partitioned tables)
-- **Cloud Storage**: Stores trained models and backups (3 buckets with lifecycle policies)
-- **Cloud Scheduler**: Triggers weekly rebalancing function
-- **Cloud Functions**: Executes automated trading logic
-- **Secret Manager**: Securely stores Kraken API credentials
-- **IAM**: Three service accounts with minimal permissions for security
+- **Streamlit Dashboard**: Local app with cloud integration (no ML dependencies)
+- **Vertex AI**: All ML training and predictions (pre-built containers)
+- **BigQuery**: Data warehouse with partitioned tables for cost optimization
+- **Cloud Storage**: Model artifacts with lifecycle policies
+- **Cloud Functions**: Automated trading execution
+- **Secret Manager**: Secure API credential storage
+- **IAM**: Minimal-permission service accounts
+- **Cost Optimization**: Preemptible instances, auto-scaling, lifecycle policies
 
 ---
 
@@ -87,25 +87,27 @@ A machine learning-powered cryptocurrency trading system that uses LSTM neural n
 - created_at: TIMESTAMP
 ```
 
-### 2. LSTM Model Architecture
+### 2. Cloud-First ML Strategy
 
-**Decision**: 2-layer LSTM with 50 units each, dropout 0.2
+**Decision**: All ML operations run in Google Cloud using pre-built containers
 
 **Rationale**:
-- Sufficient complexity for time series patterns without overfitting
-- 7-day input window balances recent trends vs. noise
-- Dropout prevents overfitting on crypto's volatile data
+- No local TensorFlow installation required
+- Google's pre-built containers handle all dependencies
+- Automatic scaling and cost optimization
+- Professional-grade ML infrastructure
 
 **Training Strategy**:
-- Rolling window: Use days 1-7 to predict day 8's return
-- Features: Raw OHLCV + MA(7,14,30) + RSI + volume momentum
-- Train/val split: 80/20 with temporal ordering preserved
-- Retrain weekly to adapt to market regime changes
+- Vertex AI Custom Jobs with pre-built TensorFlow containers
+- Preemptible instances for 60-80% cost savings
+- Automatic hyperparameter tuning and model selection
+- Rolling retraining with BigQuery data integration
 
-**Model Versioning**:
-- Save to Cloud Storage: `gs://bucket/models/{symbol}/model_{timestamp}.h5`
-- Track metadata in BigQuery: training date, data range, validation RMSE
-- Keep last 4 versions per symbol for rollback capability
+**Model Deployment**:
+- Vertex AI Endpoints with auto-scaling (scale to zero)
+- Model versioning in Vertex AI Model Registry
+- A/B testing and gradual rollout capabilities
+- Integrated with BigQuery for prediction logging
 
 ### 3. Portfolio Rebalancing Logic
 
@@ -232,7 +234,18 @@ Cloud Function steps:
 
 ---
 
-## ☁️ GCP ML Infrastructure (NEW)
+## ☁️ Cloud-First ML Infrastructure (PRODUCTION READY)
+
+### Key Innovation: No Local ML Dependencies
+
+**Revolutionary Approach**: This project proves that you don't need TensorFlow, PyTorch, or any heavy ML libraries installed locally. Everything runs in Google Cloud using pre-built containers.
+
+**Benefits**:
+- ✅ **Zero local setup** - No dependency hell
+- ✅ **Cost efficient** - Pay only for what you use
+- ✅ **Always up-to-date** - Google maintains the containers
+- ✅ **Scalable** - Automatic scaling based on demand
+- ✅ **Professional grade** - Enterprise ML infrastructure
 
 ### Vertex AI Integration
 
@@ -310,10 +323,10 @@ Cloud Function steps:
 - **Why**: Serverless, scales automatically, integrates with GCP ecosystem
 - **Trade-off**: More expensive for small datasets, but free tier covers MVP usage
 
-### TensorFlow vs. PyTorch
-- **Chosen**: TensorFlow/Keras
-- **Why**: Better integration with Vertex AI, simpler API for LSTMs
-- **Trade-off**: PyTorch more flexible for research, but not needed here
+### Local ML vs. Cloud-First Approach
+- **Chosen**: Cloud-First (Google Cloud Vertex AI)
+- **Why**: No local dependencies, professional infrastructure, cost-effective
+- **Trade-off**: Requires internet connection, but eliminates dependency management
 
 ### Custom Backtesting vs. QuantConnect
 - **Chosen**: Custom Python engine
