@@ -873,7 +873,8 @@ def show_predictions():
             "ML Prediction Provider:",
             options=["local", "vertex"],
             format_func=lambda x: "🏠 Local (Mock)" if x == "local" else "☁️ Google Cloud (Vertex AI)",
-            help="Choose between local mock predictions or real Google Cloud ML predictions"
+            help="Choose between local mock predictions or real Google Cloud ML predictions",
+            index=1  # Default to Vertex AI
         )
     
     with col2:

@@ -14,6 +14,7 @@ google-cloud-bigquery>=3.38.0
 google-cloud-storage>=3.4.0
 google-cloud-secret-manager>=2.16.0
 google-auth>=2.14.1
+db-dtypes>=1.4.0
 
 # Data Visualization
 plotly>=5.17.0

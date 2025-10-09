@@ -443,12 +443,12 @@ class PredictionService:
             return self._create_mock_prediction(symbol, days_ahead)
     
     def _create_mock_prediction(self, symbol: str, days_ahead: int) -> Dict:
-        """Create enhanced mock prediction with technical analysis."""
+        """Create mock prediction when model is not available."""
+        # Get current price from Kraken
         try:
             from data.kraken_api import KrakenAPI
-            
-            # Get real current price
             kraken = KrakenAPI()
+            
             pair_map = {
                 'BTC': 'XXBTZUSD',
                 'ETH': 'XETHZUSD', 
@@ -458,76 +458,41 @@ class PredictionService:
                 'XRP': 'XXRPZUSD'
             }
             
-            current_price = 1000.0  # Default
             pair = pair_map.get(symbol)
             if pair:
-                try:
-                    ticker_data = kraken.get_ticker([pair])
-                    if ticker_data:
-                        matching_key = [k for k in ticker_data.keys() if pair in k or k in pair]
-                        if matching_key:
-                            current_price = float(ticker_data[matching_key[0]]['c'][0])
-                except:
-                    pass
-            
-            # Enhanced prediction with technical analysis simulation
-            np.random.seed(hash(symbol) % 2**32)  # Consistent seed
-            
-            # Simulate technical indicators
-            rsi = np.random.uniform(30, 70)
-            trend = np.random.normal(0.01, 0.02)  # Slight upward bias
-            volatility = np.random.uniform(0.02, 0.05)
-            
-            # Generate prediction based on simulated indicators
-            momentum_factor = (rsi - 50) / 50 * 0.3
-            trend_factor = trend * 0.4
-            noise_factor = np.random.normal(0, 0.01)
-            
-            predicted_return = momentum_factor + trend_factor + noise_factor
-            predicted_price = current_price * (1 + predicted_return)
-            
-            # Calculate confidence based on signal strength
-            signal_strength = abs(momentum_factor) + abs(trend_factor)
-            confidence = min(0.95, max(0.4, 0.6 + signal_strength * 2))
-            
-            return {
-                'symbol': symbol,
-                'current_price': float(current_price),
-                'predicted_price': float(predicted_price),
-                'predicted_return': float(predicted_return),
-                'confidence': float(confidence),
-                'prediction_date': datetime.now().strftime('%Y-%m-%d'),
-                'model_version': 'enhanced-mock-v1.0',
-                'features_used': ['real_price', 'rsi', 'trend', 'volatility'],
-                'status': 'enhanced_mock',
-                'data_points': 30,
-                'technical_analysis': {
-                    'rsi': float(rsi),
-                    'trend': float(trend),
-                    'volatility': float(volatility)
-                }
-            }
-            
-        except Exception as e:
-            logger.warning(f"Enhanced mock failed for {symbol}: {e}")
-            # Fallback to basic mock
-            np.random.seed(hash(symbol) % 2**32)
-            predicted_return = np.random.normal(0.02, 0.05)
-            predicted_price = current_price * (1 + predicted_return)
-            confidence = np.random.uniform(0.6, 0.8)
-            
-            return {
-                'symbol': symbol,
-                'current_price': float(current_price),
-                'predicted_price': float(predicted_price),
-                'predicted_return': float(predicted_return),
-                'confidence': float(confidence),
-                'prediction_date': datetime.now().strftime('%Y-%m-%d'),
-                'model_version': 'basic-mock',
-                'features_used': ['real_price'],
-                'status': 'basic_mock',
-                'data_points': 0
-            }
+                ticker_data = kraken.get_ticker([pair])
+                if ticker_data:
+                    matching_key = [k for k in ticker_data.keys() if pair in k or k in pair]
+                    if matching_key:
+                        current_price = float(ticker_data[matching_key[0]]['c'][0])
+                    else:
+                        current_price = 1000.0  # Fallback
+                else:
+                    current_price = 1000.0
+            else:
+                current_price = 1000.0
+                
+        except:
+            current_price = 1000.0
+        
+        # Generate mock prediction
+        np.random.seed(hash(symbol) % 2**32)  # Consistent mock data
+        predicted_return = np.random.normal(0.02, 0.05)  # 2% mean, 5% std
+        predicted_price = current_price * (1 + predicted_return)
+        confidence = np.random.uniform(0.6, 0.8)
+        
+        return {
+            'symbol': symbol,
+            'current_price': float(current_price),
+            'predicted_price': float(predicted_price),
+            'predicted_return': float(predicted_return),
+            'confidence': float(confidence),
+            'prediction_date': datetime.now().strftime('%Y-%m-%d'),
+            'model_version': 'mock',
+            'features_used': [],
+            'status': 'mock',
+            'data_points': 0
+        }
 
 
 def main():

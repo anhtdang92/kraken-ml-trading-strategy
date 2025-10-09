@@ -74,7 +74,7 @@ class PortfolioRebalancer:
         """
         self.paper_trading = paper_trading
         self.config_file = config_file
-        self.prediction_service = PredictionService()
+        self.prediction_service = PredictionService(provider="vertex")  # Use Vertex AI by default
         self.kraken_api = KrakenAPI()
         
         # Portfolio state
