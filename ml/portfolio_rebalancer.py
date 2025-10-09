@@ -184,7 +184,22 @@ class PortfolioRebalancer:
             Dict mapping symbol to target weight
         """
         # Get ML predictions
-        predictions = self.prediction_service.get_all_predictions(days_ahead=7)
+        # Handle both PredictionService and HybridPredictionService
+        if hasattr(self.prediction_service, 'get_all_predictions'):
+            # Check if it's HybridPredictionService (requires symbols parameter)
+            import inspect
+            sig = inspect.signature(self.prediction_service.get_all_predictions)
+            if 'symbols' in sig.parameters:
+                # HybridPredictionService - provide symbols and convert dict to list
+                predictions_dict = self.prediction_service.get_all_predictions(symbols=self.SUPPORTED_SYMBOLS, days_ahead=7)
+                # Convert dictionary to list format expected by rebalancer
+                predictions = [predictions_dict[symbol] for symbol in self.SUPPORTED_SYMBOLS if symbol in predictions_dict]
+            else:
+                # Regular PredictionService - no symbols needed
+                predictions = self.prediction_service.get_all_predictions(days_ahead=7)
+        else:
+            # Fallback - create empty predictions
+            predictions = []
         
         # Start with equal weights
         base_weights = {symbol: self.BASE_ALLOCATION for symbol in self.SUPPORTED_SYMBOLS}

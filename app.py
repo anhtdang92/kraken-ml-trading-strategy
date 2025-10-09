@@ -16,21 +16,58 @@ import json
 
 # Helper functions for cloud progress tracking
 def get_training_job_status():
-    """Get the status of the training job from Google Cloud."""
+    """Get the status of the latest training job from Google Cloud."""
     try:
+        # Get the latest training job
         result = subprocess.run([
-            'gcloud', 'ai', 'custom-jobs', 'describe',
-            'projects/64620033647/locations/us-central1/customJobs/3995218109618192384',
-            '--format=value(state)'
+            'gcloud', 'ai', 'custom-jobs', 'list',
+            '--region=us-central1',
+            '--format=value(state)',
+            '--limit=1',
+            '--sort-by=~createTime'
         ], capture_output=True, text=True, timeout=10)
         
         if result.returncode == 0:
             status = result.stdout.strip()
-            return status
+            return status if status else "NO_JOBS"
         else:
             return "ERROR"
     except Exception as e:
         return f"ERROR: {str(e)}"
+
+def get_latest_training_jobs():
+    """Get the latest training jobs from Google Cloud."""
+    try:
+        result = subprocess.run([
+            'gcloud', 'ai', 'custom-jobs', 'list',
+            '--region=us-central1',
+            '--format=json',
+            '--limit=5',
+            '--sort-by=~createTime'
+        ], capture_output=True, text=True, timeout=10)
+        
+        if result.returncode == 0:
+            return json.loads(result.stdout)
+        return []
+    except Exception:
+        return []
+
+def get_latest_endpoints():
+    """Get the latest endpoints from Google Cloud."""
+    try:
+        result = subprocess.run([
+            'gcloud', 'ai', 'endpoints', 'list',
+            '--region=us-central1',
+            '--format=json',
+            '--limit=5',
+            '--sort-by=~createTime'
+        ], capture_output=True, text=True, timeout=10)
+        
+        if result.returncode == 0:
+            return json.loads(result.stdout)
+        return []
+    except Exception:
+        return []
 
 def get_training_logs():
     """Get recent logs from the training job."""
@@ -594,7 +631,7 @@ def show_portfolio_view():
             showlegend=True,
             legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5)
         )
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
     
     # Status info
     st.success("◉ **Connected to Kraken** - Your portfolio is live and updating with real-time prices!")
@@ -766,7 +803,7 @@ def show_live_prices():
             yaxis=dict(gridcolor='#333')
         )
         
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True)
         
         # Volume chart with matching styling
         fig_volume = px.bar(df, x='timestamp', y='volume', 
@@ -785,7 +822,7 @@ def show_live_prices():
         )
         
         fig_volume.update_traces(marker_color=cryptos[selected_crypto]['color'])
-        st.plotly_chart(fig_volume, width='stretch')
+        st.plotly_chart(fig_volume, use_container_width=True)
         
         # Market stats in portfolio-style cards
         st.markdown("### ◉ Market Statistics")
@@ -863,73 +900,195 @@ def show_predictions():
             st.cache_data.clear()
             st.rerun()
     
-    # ML Provider Selection
-    st.markdown("### ⚙️ ML Provider Configuration")
+    # Hybrid ML System Selection
+    st.markdown("### ⚙️ Prediction System Configuration")
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        ml_provider = st.selectbox(
-            "ML Prediction Provider:",
-            options=["local", "vertex"],
-            format_func=lambda x: "🏠 Local (Mock)" if x == "local" else "☁️ Google Cloud (Vertex AI)",
-            help="Choose between local mock predictions or real Google Cloud ML predictions",
-            index=1  # Default to Vertex AI
+        prediction_mode = st.selectbox(
+            "Prediction Mode:",
+            options=["hybrid", "enhanced_mock", "vertex_ai"],
+            format_func=lambda x: {
+                "hybrid": "🔀 Hybrid (Best of Both Worlds)",
+                "enhanced_mock": "🏠 Enhanced Mock (Reliable)",
+                "vertex_ai": "☁️ Vertex AI (Real ML)"
+            }[x],
+            help="Choose your prediction strategy",
+            index=0  # Default to Hybrid
         )
     
     with col2:
-        if ml_provider == "vertex":
-            # Check if training is complete
-            training_status = get_training_job_status()
-            if training_status == "JOB_STATE_SUCCEEDED":
-                st.success("✅ Model Ready")
-            elif training_status == "JOB_STATE_RUNNING":
-                st.info("🔄 Training...")
-            else:
-                st.warning("⏳ Model Pending")
+        # Show system status
+        training_status = get_training_job_status()
+        if training_status == "JOB_STATE_SUCCEEDED":
+            st.success("✅ ML Model Ready")
+        elif training_status == "JOB_STATE_RUNNING":
+            st.info("🔄 ML Training...")
+        else:
+            st.warning("⏳ ML Model Pending")
     
     # Initialize prediction service
+    prediction_service = None
+    hybrid_service = None
+    system_summary = {
+        'enhanced_mock_available': True,
+        'vertex_ai_available': False,
+        'local_ml_models_available': False,
+        'local_ml_models_count': 0,
+        'supported_symbols': ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP'],
+        'system_status': 'basic_operational'
+    }
+    
+    # Try to initialize hybrid prediction service
     try:
-        from ml.prediction_service import PredictionService
-        prediction_service = PredictionService(provider=ml_provider)
+        from ml.hybrid_prediction_service import HybridPredictionService
+        hybrid_service = HybridPredictionService()
+        
+        # Get system summary
+        system_summary = hybrid_service.get_prediction_summary()
+    except ImportError as e:
+        st.warning(f"⚠️ Hybrid service import failed: {e}")
+        st.info("Falling back to basic prediction service.")
+        hybrid_service = None
+        
+        # Show system status
+        st.markdown("### 🔧 System Status")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid #4caf50;
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                margin: 10px 0;
+            ">
+                <div style="font-size: 18px; font-weight: bold; color: #4caf50; margin-bottom: 5px;">
+                    ✅ Enhanced Mock
+                </div>
+                <div style="font-size: 12px; color: #cccccc;">
+                    Real-time data + Technical analysis
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            vertex_status = "✅ Available" if system_summary['vertex_ai_available'] else "❌ Not Available"
+            vertex_color = "#4caf50" if system_summary['vertex_ai_available'] else "#f44336"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid {vertex_color};
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                margin: 10px 0;
+            ">
+                <div style="font-size: 18px; font-weight: bold; color: {vertex_color}; margin-bottom: 5px;">
+                    {vertex_status}
+                </div>
+                <div style="font-size: 12px; color: #cccccc;">
+                    Vertex AI ML Models
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            local_status = "✅ Available" if system_summary['local_ml_models_available'] else "❌ Not Available"
+            local_color = "#4caf50" if system_summary['local_ml_models_available'] else "#f44336"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid {local_color};
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                margin: 10px 0;
+            ">
+                <div style="font-size: 18px; font-weight: bold; color: {local_color}; margin-bottom: 5px;">
+                    {local_status}
+                </div>
+                <div style="font-size: 12px; color: #cccccc;">
+                    Local ML Models ({system_summary['local_ml_models_count']})
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+    # Set prediction service based on mode
+    try:
+        if prediction_mode == "hybrid" and hybrid_service is not None:
+            prediction_service = hybrid_service
+        elif prediction_mode == "enhanced_mock":
+            from ml.prediction_service import PredictionService
+            prediction_service = PredictionService(provider="local")
+        else:  # vertex_ai or hybrid fallback
+            from ml.prediction_service import PredictionService
+            prediction_service = PredictionService(provider="vertex")
     except ImportError as e:
         st.error(f"⊗ Could not import prediction service: {e}")
-        st.info("Please ensure all ML dependencies are installed.")
-        return
+        st.info("Falling back to basic prediction service.")
+        
+        try:
+            from ml.prediction_service import PredictionService
+            prediction_service = PredictionService(provider="local")
+        except ImportError:
+            st.error("⊗ Could not import any prediction service.")
+            return
+    
+    # Ensure prediction_service is always defined
+    if prediction_service is None:
+        try:
+            from ml.prediction_service import PredictionService
+            prediction_service = PredictionService(provider="local")
+        except ImportError:
+            st.error("⊗ Could not initialize any prediction service.")
+            return
     
     # Show last update time
     st.caption(f"⟳ Last updated: {datetime.now().strftime('%B %d, %Y at %I:%M:%S %p')}")
     
-    # Show current status
-    if ml_provider == "vertex":
-        if prediction_service.vertex_service:
-            st.success("☁️ **Using Google Cloud Vertex AI** - Real ML predictions from trained models!")
+    # Show current prediction mode status
+    if prediction_mode == "hybrid":
+        st.success("🔀 **Using Hybrid Prediction System** - Best of both worlds!")
+        st.info("""
+        **Hybrid System Features:**
+        • **Real ML Models** when available (Vertex AI or local)
+        • **Enhanced Mock Predictions** with technical analysis as fallback
+        • **Automatic failover** ensures predictions always work
+        • **Source transparency** - see which method was used for each prediction
+        """)
+    elif prediction_mode == "enhanced_mock":
+        st.success("🏠 **Using Enhanced Mock Predictions** - Reliable and sophisticated!")
+        st.info("""
+        **Enhanced Mock Features:**
+        • **Real-time Kraken API data**
+        • **Technical analysis** (RSI, trends, volatility)
+        • **Dynamic confidence scoring**
+        • **Always available** - no training required
+        """)
+    else:  # vertex_ai
+        if hasattr(prediction_service, 'vertex_service') and prediction_service.vertex_service:
+            st.success("☁️ **Using Vertex AI ML Models** - Real trained models!")
         else:
-            st.warning("⚠️ **Vertex AI Not Configured** - Deploy prediction endpoint first.")
+            st.warning("⚠️ **Vertex AI Not Available** - Using enhanced mock predictions.")
             
             # Show deployment instructions
-            with st.expander("🚀 Deploy Vertex AI Prediction Endpoint"):
+            with st.expander("🚀 Enable Vertex AI ML Predictions"):
                 st.markdown("""
-                **To enable real ML predictions, deploy the prediction endpoint:**
+                **To enable real ML predictions:**
                 
                 1. **Wait for training to complete** (check Cloud Progress tab)
-                2. **Deploy the endpoint:**
-                   ```bash
-                   bash gcp/scripts/deploy_budget_endpoint.sh
-                   ```
-                3. **Set environment variable:**
-                   ```bash
-                   export VERTEX_ENDPOINT_ID=your-endpoint-id
-                   ```
-                4. **Refresh this page** to see real predictions!
+                2. **Deploy the trained model to endpoint**
+                3. **Refresh this page** to see real ML predictions!
                 
                 **Current Training Status:** Check the "☁️ Cloud Progress" tab for updates.
                 """)
-            
-            # Fall back to local predictions for now
-            st.info("🏠 **Currently showing local predictions** - Deploy endpoint above for real ML predictions.")
-    else:
-        st.info("🏠 **Using Local Mock Predictions** - Switch to Vertex AI for real ML predictions.")
     
     # Prediction controls
     st.markdown("### ↗ Prediction Controls")
@@ -999,7 +1158,9 @@ def show_predictions():
     # Generate predictions
     with st.spinner("◉ Generating predictions..."):
         if selected_symbol == 'All':
-            predictions = prediction_service.get_all_predictions(days_ahead)
+            predictions_dict = prediction_service.get_all_predictions(symbols=['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP'], days_ahead=days_ahead)
+            # Convert dictionary to list for consistent handling
+            predictions = [predictions_dict[symbol] for symbol in ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP'] if symbol in predictions_dict]
         else:
             predictions = [prediction_service.get_prediction(selected_symbol, days_ahead)]
     
@@ -1062,8 +1223,22 @@ def show_predictions():
                         else:
                             st.info(f"→ **{pred['predicted_return']*100:+.2f}%** ({days_ahead}d forecast)")
                         
+                        # Prediction source info
+                        prediction_source = pred.get('prediction_source', 'unknown')
+                        prediction_type = pred.get('prediction_type', 'unknown')
+                        
+                        # Source badges
+                        if prediction_source == 'vertex_ai_ml':
+                            st.success("🤖 **Vertex AI ML Model**")
+                        elif prediction_source == 'local_ml':
+                            st.success("🧠 **Local ML Model**")
+                        elif prediction_source == 'enhanced_mock':
+                            st.info("🔧 **Enhanced Mock**")
+                        else:
+                            st.warning("⚠️ **Basic Mock**")
+                        
                         # Model info
-                        st.caption(f"Model: {pred['model_version']} | Status: {pred['status']}")
+                        st.caption(f"Status: {pred['status']}")
                         
                         st.markdown("---")
     
@@ -1075,13 +1250,23 @@ def show_predictions():
     # Prepare data for table
     table_data = []
     for pred in predictions:
+        prediction_source = pred.get('prediction_source', 'unknown')
+        
+        # Format prediction source for display
+        source_display = {
+            'vertex_ai_ml': '🤖 Vertex AI ML',
+            'local_ml': '🧠 Local ML',
+            'enhanced_mock': '🔧 Enhanced Mock',
+            'basic_mock': '⚠️ Basic Mock'
+        }.get(prediction_source, '❓ Unknown')
+        
         table_data.append({
             'Symbol': pred['symbol'],
             'Current Price': f"${pred['current_price']:,.2f}",
             'Predicted Price': f"${pred['predicted_price']:,.2f}",
             'Predicted Return': f"{pred['predicted_return']*100:+.2f}%",
             'Confidence': f"{pred['confidence']*100:.1f}%",
-            'Model Version': pred['model_version'],
+            'Source': source_display,
             'Status': pred['status'].title()
         })
     
@@ -1220,16 +1405,137 @@ def show_rebalancing():
     </h1>
     """, unsafe_allow_html=True)
     
+    # Prediction System Selection for Rebalancing
+    st.markdown("### ⚙️ Rebalancing Prediction System")
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        rebalancing_mode = st.selectbox(
+            "Rebalancing Prediction Mode:",
+            options=["hybrid", "enhanced_mock", "vertex_ai"],
+            format_func=lambda x: {
+                "hybrid": "🔀 Hybrid (Best of Both Worlds)",
+                "enhanced_mock": "🏠 Enhanced Mock (Reliable)",
+                "vertex_ai": "☁️ Vertex AI (Real ML)"
+            }[x],
+            help="Choose prediction system for portfolio rebalancing",
+            index=0  # Default to Hybrid
+        )
+    
+    with col2:
+        paper_trading = st.checkbox("◉ Paper Trading Mode", value=True, help="Enable paper trading to test strategies without real money")
+    
     # Import rebalancing service
     try:
         from ml.portfolio_rebalancer import PortfolioRebalancer
+        try:
+            from ml.hybrid_prediction_service import HybridPredictionService
+            hybrid_service = HybridPredictionService()
+        except ImportError as e:
+            st.warning(f"⚠️ Hybrid service import failed: {e}")
+            hybrid_service = None
+        
+        # Create custom rebalancer with hybrid predictions
+        if rebalancing_mode == "hybrid" and hybrid_service is not None:
+            # Create a custom rebalancer that uses hybrid predictions
+            class HybridRebalancer(PortfolioRebalancer):
+                def __init__(self, paper_trading=True):
+                    super().__init__(paper_trading)
+                    # Replace prediction service with hybrid service
+                    self.prediction_service = hybrid_service
+            
+            rebalancer = HybridRebalancer(paper_trading=paper_trading)
+        else:
+            # Use standard rebalancer with specific provider
+            if rebalancing_mode == "hybrid":
+                # Fallback to enhanced mock if hybrid service not available
+                provider = "local"
+            else:
+                provider = "vertex" if rebalancing_mode == "vertex_ai" else "local"
+            
+            rebalancer = PortfolioRebalancer(paper_trading=paper_trading)
+            # Update the prediction service provider
+            rebalancer.prediction_service.provider = provider
+            
     except ImportError as e:
         st.error(f"⊗ Could not import portfolio rebalancer: {e}")
         return
     
-    # Initialize rebalancer
-    paper_trading = st.sidebar.checkbox("◉ Paper Trading Mode", value=True, help="Enable paper trading to test strategies without real money")
-    rebalancer = PortfolioRebalancer(paper_trading=paper_trading)
+    # Show prediction system status for rebalancing
+    st.markdown("### 🔧 Rebalancing System Status")
+    
+    if rebalancing_mode == "hybrid" and hybrid_service is not None:
+        system_summary = hybrid_service.get_prediction_summary()
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid #4caf50;
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                margin: 10px 0;
+            ">
+                <div style="font-size: 16px; font-weight: bold; color: #4caf50; margin-bottom: 5px;">
+                    ✅ Enhanced Mock
+                </div>
+                <div style="font-size: 11px; color: #cccccc;">
+                    Always available fallback
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            vertex_status = "✅ Available" if system_summary['vertex_ai_available'] else "❌ Not Available"
+            vertex_color = "#4caf50" if system_summary['vertex_ai_available'] else "#f44336"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid {vertex_color};
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                margin: 10px 0;
+            ">
+                <div style="font-size: 16px; font-weight: bold; color: {vertex_color}; margin-bottom: 5px;">
+                    {vertex_status}
+                </div>
+                <div style="font-size: 11px; color: #cccccc;">
+                    Vertex AI ML Models
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            local_status = "✅ Available" if system_summary['local_ml_models_available'] else "❌ Not Available"
+            local_color = "#4caf50" if system_summary['local_ml_models_available'] else "#f44336"
+            
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                border: 2px solid {local_color};
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                margin: 10px 0;
+            ">
+                <div style="font-size: 16px; font-weight: bold; color: {local_color}; margin-bottom: 5px;">
+                    {local_status}
+                </div>
+                <div style="font-size: 11px; color: #cccccc;">
+                    Local ML Models
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.success("🔀 **Using Hybrid System for Rebalancing** - ML-enhanced allocations with automatic fallback!")
+    else:
+        st.info(f"🏠 **Using {rebalancing_mode.replace('_', ' ').title()} System** for rebalancing predictions.")
     
     # Portfolio value input
     st.markdown("### ◉ Portfolio Configuration")
@@ -1938,6 +2244,7 @@ def show_cloud_progress():
             "JOB_STATE_RUNNING": ("🔄 Running", "#4caf50", "Training is in progress"),
             "JOB_STATE_SUCCEEDED": ("✅ Completed", "#4caf50", "Training completed successfully"),
             "JOB_STATE_FAILED": ("❌ Failed", "#f44336", "Training failed"),
+            "NO_JOBS": ("📭 No Jobs", "#666666", "No training jobs found"),
             "ERROR": ("❓ Error", "#f44336", "Unable to check status")
         }
         
@@ -1963,7 +2270,7 @@ def show_cloud_progress():
                 {status_desc}
             </div>
             <div style="font-size: 11px; color: #cccccc;">
-                Job: crypto-final-20251006-220955
+                Latest Training Job
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -2052,6 +2359,114 @@ def show_cloud_progress():
         with col3:
             st.write(f"{item['status']} - {item['details']}")
     
+    # Latest Training Jobs and Endpoints
+    st.markdown("### 🔄 Latest Training Jobs & Endpoints")
+    
+    # Get latest data
+    training_jobs = get_latest_training_jobs()
+    endpoints = get_latest_endpoints()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### 🚀 Training Jobs")
+        if training_jobs:
+            for i, job in enumerate(training_jobs[:3]):  # Show top 3
+                job_name = job.get('displayName', 'Unknown')
+                job_state = job.get('state', 'UNKNOWN')
+                create_time = job.get('createTime', '')
+                
+                # Format time
+                if create_time:
+                    try:
+                        from datetime import datetime
+                        dt = datetime.fromisoformat(create_time.replace('Z', '+00:00'))
+                        time_str = dt.strftime('%m/%d %H:%M')
+                    except:
+                        time_str = create_time[:16]
+                else:
+                    time_str = 'Unknown'
+                
+                # Status color
+                status_colors = {
+                    'JOB_STATE_SUCCEEDED': '#4caf50',
+                    'JOB_STATE_RUNNING': '#ff9800',
+                    'JOB_STATE_FAILED': '#f44336',
+                    'JOB_STATE_PENDING': '#2196f3'
+                }
+                status_color = status_colors.get(job_state, '#666666')
+                
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                    border-left: 4px solid {status_color};
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin: 10px 0;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                ">
+                    <div style="font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                        {job_name}
+                    </div>
+                    <div style="font-size: 12px; color: {status_color}; margin-bottom: 3px;">
+                        {job_state.replace('JOB_STATE_', '').title()}
+                    </div>
+                    <div style="font-size: 11px; color: #cccccc;">
+                        {time_str}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("No training jobs found")
+    
+    with col2:
+        st.markdown("#### 🎯 Prediction Endpoints")
+        if endpoints:
+            for i, endpoint in enumerate(endpoints[:3]):  # Show top 3
+                endpoint_name = endpoint.get('displayName', 'Unknown')
+                endpoint_id = endpoint.get('name', '').split('/')[-1] if endpoint.get('name') else 'Unknown'
+                create_time = endpoint.get('createTime', '')
+                
+                # Format time
+                if create_time:
+                    try:
+                        from datetime import datetime
+                        dt = datetime.fromisoformat(create_time.replace('Z', '+00:00'))
+                        time_str = dt.strftime('%m/%d %H:%M')
+                    except:
+                        time_str = create_time[:16]
+                else:
+                    time_str = 'Unknown'
+                
+                # Get deployed models count
+                deployed_models = len(endpoint.get('deployedModels', []))
+                
+                st.markdown(f"""
+                <div style="
+                    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                    border-left: 4px solid #4ecdc4;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin: 10px 0;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                ">
+                    <div style="font-weight: bold; color: #ffffff; margin-bottom: 5px;">
+                        {endpoint_name}
+                    </div>
+                    <div style="font-size: 12px; color: #4ecdc4; margin-bottom: 3px;">
+                        ID: {endpoint_id}
+                    </div>
+                    <div style="font-size: 12px; color: #4ecdc4; margin-bottom: 3px;">
+                        Models: {deployed_models}
+                    </div>
+                    <div style="font-size: 11px; color: #cccccc;">
+                        {time_str}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("No endpoints found")
+
     # Live Logs Section
     st.markdown("### 📋 Live Training Logs")
     

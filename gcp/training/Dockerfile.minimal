@@ -1,0 +1,15 @@
+
+FROM tensorflow/tensorflow:2.13.0
+
+WORKDIR /app
+
+# Copy only the training script
+COPY simple_ml_training.py /app/
+
+# Create output directories
+RUN mkdir -p /outputs/models /outputs/logs
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+CMD ["python", "simple_ml_training.py"]

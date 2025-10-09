@@ -1,0 +1,15 @@
+FROM tensorflow/tensorflow:2.13.0-gpu
+
+WORKDIR /app
+
+# Copy training script
+COPY simple_training_job.py /app/
+COPY requirements.txt /app/
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create output directories
+RUN mkdir -p /app/outputs/models /app/outputs/logs
+
+CMD ["python", "simple_training_job.py"]
