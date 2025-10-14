@@ -1455,12 +1455,12 @@ def show_predictions():
                 # Show training results
                 st.success("◉ Training completed!")
                 
-                # Display results
-                for result in results:
+                # Display results (results is a dict like {'BTC': {...}, 'ETH': {...}})
+                for symbol, result in results.items():
                     if result['status'] == 'success':
-                        st.success(f"◉ {result['symbol']}: {result['message']}")
+                        st.success(f"◉ {symbol}: {result.get('message', 'Training successful')}")
                     else:
-                        st.error(f"⊗ {result['symbol']}: {result['message']}")
+                        st.error(f"⊗ {symbol}: {result.get('message', 'Training failed')}")
                         
             except Exception as e:
                 st.error(f"⊗ Training failed: {e}")
@@ -1476,12 +1476,22 @@ def show_predictions():
     
     # Generate predictions
     with st.spinner("◉ Generating predictions..."):
-        if selected_symbol == 'All':
-            predictions_dict = prediction_service.get_all_predictions(symbols=['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP'], days_ahead=days_ahead)
-            # Convert dictionary to list for consistent handling
-            predictions = [predictions_dict[symbol] for symbol in ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP'] if symbol in predictions_dict]
-        else:
-            predictions = [prediction_service.get_prediction(selected_symbol, days_ahead)]
+        try:
+            if selected_symbol == 'All':
+                # Check if using HybridPredictionService (needs symbols param) or regular PredictionService (doesn't)
+                if hasattr(prediction_service, '__class__') and 'Hybrid' in prediction_service.__class__.__name__:
+                    # HybridPredictionService needs symbols parameter
+                    predictions_dict = prediction_service.get_all_predictions(symbols=['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP'], days_ahead=days_ahead)
+                    # Convert dict to list
+                    predictions = [predictions_dict[symbol] for symbol in ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'XRP'] if symbol in predictions_dict]
+                else:
+                    # Regular PredictionService returns list directly
+                    predictions = prediction_service.get_all_predictions(days_ahead=days_ahead)
+            else:
+                predictions = [prediction_service.get_prediction(selected_symbol, days_ahead)]
+        except Exception as e:
+            st.error(f"⊗ Error generating predictions: {e}")
+            predictions = []
     
     # Display predictions with portfolio-style cards
     st.markdown("### ↗ Price Predictions")

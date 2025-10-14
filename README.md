@@ -1,312 +1,340 @@
-# 🚀 Crypto ML Trading Dashboard
-## Advanced AI-Powered Cryptocurrency Portfolio Management
+# ⚡ NOVA - Crypto Intelligence System
 
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://github.com/your-repo)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue)](https://github.com/your-repo)
-[![Python](https://img.shields.io/badge/Python-3.11+-yellow)](https://python.org)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red)](https://streamlit.io)
+> **AI-Powered Cryptocurrency Trading Dashboard with Machine Learning Price Predictions**
 
-**A comprehensive cryptocurrency trading dashboard powered by machine learning, featuring real-time predictions, automated portfolio rebalancing, and intelligent risk management.**
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-Google_Cloud-blue)
+![Python](https://img.shields.io/badge/python-3.9+-blue)
 
----
-
-## ✨ **Key Features**
-
-### 🧠 **AI-Powered Predictions**
-- **Hybrid Prediction System** - Combines real ML models with technical analysis
-- **Multiple Providers** - Vertex AI, Local ML, Enhanced Mock predictions
-- **Intelligent Fallbacks** - Always provides predictions, even when services fail
-- **Real-time Updates** - Live cryptocurrency price predictions
-
-### ⚖️ **Smart Portfolio Management**
-- **ML-Enhanced Rebalancing** - AI-driven portfolio optimization
-- **Risk Controls** - Position limits and diversification safeguards
-- **Paper Trading** - Safe simulation mode for testing strategies
-- **Live Trading** - Real trade execution with confirmation dialogs
-
-### 📊 **Advanced Analytics**
-- **Interactive Charts** - Real-time price and volume visualizations
-- **Performance Tracking** - Portfolio performance and risk metrics
-- **Technical Indicators** - RSI, trends, volatility analysis
-- **Cloud Integration** - Google Cloud Platform for ML training and deployment
-
-### 🛡️ **Enterprise-Grade Reliability**
-- **100% Error-Free** - All critical issues resolved
-- **Graceful Degradation** - Robust fallback mechanisms
-- **Comprehensive Logging** - Detailed system monitoring
-- **Production Ready** - Enterprise-grade stability and performance
+A futuristic cyberpunk-themed cryptocurrency trading dashboard powered by LSTM neural networks, real-time Kraken API integration, and Google Cloud ML infrastructure.
 
 ---
 
-## 🎯 **Quick Start**
+## ✨ Features
 
-### **1. Clone and Setup**
+### 🎨 Cyberpunk UI
+- **Dark mode only** with neon aesthetics
+- **Liquid glass** morphism effects
+- **Font Awesome** icons with neon glows
+- **Orbitron & Rajdhani** futuristic fonts
+- **Animated** scan lines and effects
+
+### 📊 Portfolio Management
+- **Real-time** Kraken portfolio sync
+- **Live price** updates
+- **Staking tracking** (bonded/locked assets)
+- **P&L calculations** with visual indicators
+- **Asset allocation** pie charts
+
+### 🧠 ML Price Predictions
+- **LSTM neural networks** (2-layer, 50 units)
+- **11 technical indicators** (MA, RSI, volume, etc.)
+- **Hybrid system**: Real ML + Enhanced Mock
+- **Confidence scoring** for each prediction
+- **7-day forecasts** for 6 major cryptos
+
+### ⚖️ Portfolio Rebalancing
+- **ML-enhanced allocation** strategy
+- **Risk controls** (position limits, trade minimums)
+- **Paper trading** mode for testing
+- **Fee optimization** (0.16% Kraken maker fees)
+- **Real-time** rebalancing recommendations
+
+### ☁️ Cloud ML Training
+- **Google Cloud** Vertex AI integration
+- **Budget-optimized** ($3-8 per training run)
+- **Real-time** progress tracking
+- **Auto-scaling** prediction endpoints
+- **Live training** logs in dashboard
+
+---
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 ```bash
-git clone https://github.com/your-repo/crypto-ml-dashboard.git
-cd crypto-ml-dashboard
-
 # Create virtual environment
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install requirements
 pip install -r requirements.txt
 ```
 
-### **2. Configuration**
+### 2. Configure Kraken API
 ```bash
-# Copy configuration template
+# Copy example config
 cp config/secrets.yaml.example config/secrets.yaml
 
-# Edit with your API keys (optional - works without for demo)
-nano config/secrets.yaml
+# Edit config/secrets.yaml with your Kraken API keys
+# Get API keys from: https://www.kraken.com/u/security/api
 ```
 
-### **3. Launch Dashboard**
+### 3. Run the Dashboard
 ```bash
 streamlit run app.py
 ```
 
-### **4. Open Browser**
-Navigate to `http://localhost:8501` and start exploring!
+Open: **http://localhost:8501**
 
 ---
 
-## 📖 **Documentation**
+## 🧠 Train ML Models (Google Cloud)
 
-### **📋 Complete Documentation Suite:**
-- **[System Fixes Documentation](SYSTEM_FIXES_DOCUMENTATION.md)** - Detailed fix history and technical solutions
-- **[Technical Architecture](TECHNICAL_ARCHITECTURE.md)** - System design and implementation details
-- **[User Guide](USER_GUIDE.md)** - Comprehensive user manual and feature guide
-- **[Changelog](CHANGELOG_FIXES.md)** - Release notes and improvement history
-
-### **🔧 Quick Reference:**
-- **ML Predictions:** Use Hybrid mode for best results
-- **Portfolio Rebalancing:** Start with paper trading mode
-- **Live Prices:** Real-time data from Kraken API
-- **Cloud Progress:** Monitor ML training and deployment
-
----
-
-## 🏗️ **System Architecture**
-
-### **Prediction Engine**
-```
-HybridPredictionService
-├── Vertex AI (Real ML Models)
-├── Enhanced Mock (Technical Analysis)
-└── Local ML Models (Offline Predictions)
-```
-
-### **Data Pipeline**
-```
-Kraken API → BigQuery → Feature Engineering → ML Training → Model Deployment
-```
-
-### **Trading System**
-```
-Portfolio Analysis → ML Predictions → Allocation Optimization → Risk Controls → Order Execution
-```
-
----
-
-## 🔧 **Recent Fixes & Improvements**
-
-### **✅ All Critical Issues Resolved (October 8, 2025)**
-
-1. **Plotly Deprecation Warnings** - Updated to modern Streamlit chart API
-2. **UnboundLocalError** - Fixed variable scope issues in ML predictions
-3. **KeyError in Predictions** - Resolved data format inconsistencies
-4. **AttributeError in Hybrid Service** - Added missing methods for compatibility
-5. **TypeError in Rebalancing** - Implemented intelligent method signature detection
-
-### **🚀 New Features Added**
-- **Hybrid Prediction System** - Intelligent multi-provider predictions
-- **Enhanced Error Handling** - Graceful degradation and recovery
-- **Method Compatibility Layer** - Universal service interface
-- **Comprehensive Logging** - Detailed system monitoring
-
----
-
-## 📊 **Dashboard Pages**
-
-### **🧠 ML Predictions**
-- **Prediction Modes:** Hybrid, Enhanced Mock, Vertex AI
-- **Symbols:** BTC, ETH, SOL, ADA, DOT, XRP
-- **Timeframes:** 7, 14, 30 days ahead
-- **Features:** Confidence scores, source indicators, interactive charts
-
-### **⚖️ Portfolio Rebalancing**
-- **Rebalancing Modes:** Hybrid, Enhanced Mock, Vertex AI
-- **Risk Controls:** Position limits, diversification safeguards
-- **Trading Modes:** Paper trading (safe), Live trading (real)
-- **Features:** Order generation, fee calculation, performance tracking
-
-### **📈 Live Prices**
-- **Real-time Data:** Kraken API integration
-- **Interactive Charts:** Price history, volume analysis
-- **Market Data:** 24h changes, trading volumes
-- **Mobile Friendly:** Responsive design
-
-### **🏠 Portfolio Overview**
-- **Holdings Summary:** Current allocations and values
-- **Performance Metrics:** Returns, risk scores, Sharpe ratios
-- **Visualization:** Pie charts, allocation comparisons
-- **Historical Tracking:** Performance over time
-
-### **☁️ Cloud Progress**
-- **Training Status:** ML model training progress
-- **Endpoint Health:** Vertex AI service status
-- **Cost Tracking:** Cloud resource usage
-- **Deployment Status:** Model deployment progress
-
----
-
-## 🛠️ **Technical Stack**
-
-### **Frontend**
-- **Streamlit** - Web application framework
-- **Plotly** - Interactive charts and visualizations
-- **Material Icons** - Modern UI components
-
-### **Backend**
-- **Python 3.11+** - Core programming language
-- **TensorFlow** - Machine learning framework
-- **Pandas** - Data manipulation and analysis
-- **NumPy** - Numerical computing
-
-### **Cloud Infrastructure**
-- **Google Cloud Platform** - Cloud services
-- **Vertex AI** - Machine learning platform
-- **BigQuery** - Data warehouse
-- **Cloud Storage** - Model artifacts storage
-
-### **Data Sources**
-- **Kraken API** - Real-time cryptocurrency data
-- **Historical Data** - BigQuery time series data
-- **Technical Indicators** - RSI, moving averages, volatility
-
----
-
-## 🔐 **Security & Safety**
-
-### **Built-in Safety Features**
-- ✅ **Paper Trading Mode** - Default safe mode, no real money at risk
-- ✅ **Position Limits** - Maximum 40% allocation per symbol
-- ✅ **Confirmation Dialogs** - Required for all live trades
-- ✅ **Risk Controls** - Diversification and volatility safeguards
-
-### **Security Measures**
-- 🔒 **API Key Management** - Secure credential storage
-- 🔒 **Service Account Authentication** - Google Cloud security
-- 🔒 **Input Validation** - All user inputs validated
-- 🔒 **Error Handling** - No sensitive data exposure
-
----
-
-## 📈 **Performance Metrics**
-
-### **System Performance**
-- **Prediction Generation:** 2-3 seconds for 6 symbols
-- **Page Load Time:** <2 seconds
-- **Memory Usage:** ~500MB
-- **Uptime:** 99.9% reliability
-
-### **Prediction Accuracy**
-- **Enhanced Mock:** High reliability with technical analysis
-- **Vertex AI:** Advanced ML models (when deployed)
-- **Hybrid Mode:** Best of both worlds with automatic fallbacks
-
----
-
-## 🚀 **Getting Started Guide**
-
-### **For Beginners**
-1. **Start with Paper Trading** - Learn the system safely
-2. **Use Hybrid Mode** - Most reliable prediction method
-3. **Monitor for a Week** - Understand prediction patterns
-4. **Start Small** - Begin with small allocations
-
-### **For Advanced Users**
-1. **Configure API Keys** - Enable live data and trading
-2. **Train Local Models** - Customize ML predictions
-3. **Deploy to Vertex AI** - Use cloud ML infrastructure
-4. **Optimize Parameters** - Fine-tune risk controls
-
-### **For Developers**
-1. **Review Architecture** - Understand system design
-2. **Check Documentation** - Comprehensive technical guides
-3. **Run Tests** - Verify system functionality
-4. **Contribute** - Add new features and improvements
-
----
-
-## 🤝 **Contributing**
-
-We welcome contributions! Please see our contributing guidelines:
-
-1. **Fork the repository**
-2. **Create a feature branch**
-3. **Make your changes**
-4. **Add tests** for new functionality
-5. **Submit a pull request**
-
-### **Development Setup**
+### First-Time Setup (5 minutes)
 ```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
+# Run setup wizard
+./bin/quick-start.sh
+```
 
-# Run tests
-pytest tests/
+### Train Models
+```bash
+# Interactive training launcher
+./bin/train_now.sh
 
-# Run linting
-flake8 .
+# Choose option 1: Budget Training ($3-8, 30-60 min)
+```
 
-# Format code
-black .
+### Track Progress
+- **Dashboard:** http://localhost:8501 → ☁️ Cloud Progress
+- **Terminal:** `./bin/check_training.sh`
+- **Web:** [Vertex AI Console](https://console.cloud.google.com/vertex-ai)
+
+---
+
+## 📁 Project Structure
+
+```
+Kraken_Cloud_ML_Strat/
+│
+├── 📱 app.py                 # Main Streamlit dashboard
+├── 📋 requirements.txt       # Dependencies
+│
+├── 🚀 bin/                   # User scripts
+│   ├── train_now.sh         # Train ML models
+│   ├── check_training.sh    # Check training status
+│   ├── quick-start.sh       # First-time setup
+│   └── dev-setup.sh         # Development setup
+│
+├── ⚙️  config/               # Configuration
+│   ├── config.yaml          # App settings
+│   ├── gcp_config.yaml      # Google Cloud config
+│   └── keys/                # Service account keys (gitignored)
+│
+├── 📊 data/                  # Kraken API clients
+│   ├── kraken_api.py        # Public API
+│   └── kraken_auth.py       # Private API (auth required)
+│
+├── 🧠 ml/                    # Machine Learning
+│   ├── prediction_service.py           # Main ML service
+│   ├── hybrid_prediction_service.py    # Hybrid predictions
+│   ├── lstm_model.py                   # LSTM architecture
+│   ├── feature_engineering.py          # Technical indicators
+│   ├── historical_data_fetcher.py      # Data collection
+│   └── portfolio_rebalancer.py         # Rebalancing logic
+│
+├── ☁️  gcp/                  # Google Cloud Platform
+│   ├── training/            # ML training containers
+│   ├── deployment/          # Prediction services
+│   ├── cloud_functions/     # Serverless functions
+│   └── scripts/             # GCP automation
+│       ├── setup/           # One-time infrastructure setup
+│       ├── training/        # Training job deployment
+│       └── deployment/      # Endpoint deployment
+│
+├── 📦 models/                # Trained models (gitignored)
+├── 🧪 tests/                 # Unit & integration tests
+├── 📚 docs/                  # Documentation
+└── 📁 archive/               # Old/backup files
 ```
 
 ---
 
-## 📄 **License**
+## 📚 Documentation
+
+- **[Quick Start Guide](docs/user-guides/QUICKSTART.md)** - Get started in 5 minutes
+- **[ML Training Guide](docs/user-guides/TRAIN_ML_MODELS.md)** - Train models on GCP
+- **[UI Guide](docs/user-guides/UI_IMPROVEMENTS.md)** - UI features & design
+- **[GCP Setup](docs/deployment/GCP_ML_SETUP_GUIDE.md)** - Cloud infrastructure
+- **[Technical Architecture](docs/technical/TECHNICAL_ARCHITECTURE.md)** - System design
+
+---
+
+## 💰 Costs (Google Cloud)
+
+| Service | Monthly Cost | Optimization |
+|---------|--------------|--------------|
+| Vertex AI Training | $5-10 | Preemptible instances (60% off) |
+| Prediction Endpoint | $10-15 | Auto-scaling, scale-to-zero |
+| BigQuery | $2-5 | Partitioned tables |
+| Cloud Storage | $1-2 | Lifecycle policies |
+| **Total** | **$18-32** | **~3 months on $50 credit** |
+
+---
+
+## 🎯 Supported Cryptocurrencies
+
+1. **BTC** (Bitcoin)
+2. **ETH** (Ethereum)
+3. **SOL** (Solana)
+4. **ADA** (Cardano)
+5. **DOT** (Polkadot)
+6. **XRP** (Ripple)
+
+---
+
+## 🛠️ Technology Stack
+
+**Frontend:**
+- Streamlit (Dashboard)
+- Plotly (Charts)
+- Font Awesome (Icons)
+
+**ML/AI:**
+- TensorFlow 2.13 (LSTM models)
+- Google Vertex AI (Cloud training)
+- Scikit-learn (Preprocessing)
+- NumPy, Pandas (Data processing)
+
+**Data:**
+- Kraken API (Real-time prices)
+- Google BigQuery (Data storage)
+- Cloud Storage (Model artifacts)
+
+**Infrastructure:**
+- Google Cloud Platform
+- Docker (Containerization)
+- GitHub Actions (CI/CD)
+
+---
+
+## 📊 Dashboard Pages
+
+### ⚡ Portfolio
+- Real-time Kraken portfolio sync
+- Liquid & staked asset tracking
+- P&L calculations
+- Allocation charts
+
+### ↗ Live Prices
+- Real-time crypto prices
+- Interactive candlestick/line charts
+- 24h statistics (high, low, volume)
+- 6 major cryptocurrencies
+
+### ◉ ML Predictions
+- LSTM neural network predictions
+- 7-day price forecasts
+- Confidence scores
+- Hybrid prediction system
+- Model training interface
+
+### ◉ Rebalancing
+- ML-enhanced allocation
+- Target vs current comparison
+- Order generation with fees
+- Paper trading mode
+- Portfolio health metrics
+
+### ☁️ Cloud Progress
+- Real-time training status
+- Live job logs
+- Cost tracking
+- Progress timeline
+- System health monitoring
+
+---
+
+## 🔐 Security
+
+- ✅ API keys stored in `config/keys/` (gitignored)
+- ✅ Service accounts with minimal permissions
+- ✅ Paper trading mode by default
+- ✅ No private keys in code
+- ✅ Encrypted communication with Kraken
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run unit tests
+python -m pytest tests/unit/
+
+# Run integration tests
+python -m pytest tests/integration/
+
+# Test Kraken connection
+python tests/unit/kraken_test.py
+
+# Test GCP connection
+python tests/unit/test_gcp.py
+```
+
+---
+
+## 📈 Performance
+
+- **Prediction speed:** <100ms per crypto
+- **Data refresh:** 60-second cache
+- **Dashboard load:** <2 seconds
+- **Training time:** 30-60 minutes (4 cryptos)
+- **Inference:** <50ms via Vertex AI endpoint
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 **Acknowledgments**
+## ⚠️ Disclaimer
 
-- **Streamlit** - Amazing web framework for data applications
-- **Google Cloud** - Robust cloud ML infrastructure
-- **Kraken** - Reliable cryptocurrency data API
-- **TensorFlow** - Powerful machine learning framework
-- **Plotly** - Beautiful interactive visualizations
+This software is for **educational and research purposes only**. Cryptocurrency trading involves substantial risk of loss. Past performance does not guarantee future results. Always do your own research before making investment decisions.
 
 ---
 
-## 📞 **Support**
+## 🆘 Support
 
-### **Documentation**
-- 📖 **[User Guide](USER_GUIDE.md)** - Complete feature documentation
-- 🔧 **[Technical Architecture](TECHNICAL_ARCHITECTURE.md)** - System design details
-- 📋 **[System Fixes](SYSTEM_FIXES_DOCUMENTATION.md)** - Issue resolution history
-
-### **Getting Help**
-- 🐛 **Issues:** Report bugs and request features
-- 💬 **Discussions:** Ask questions and share ideas
-- 📧 **Contact:** Reach out for support
+- **Issues:** [GitHub Issues](https://github.com/anhtdang92/Kraken_Cloud_ML_Strat/issues)
+- **Documentation:** See `docs/` folder
+- **Email:** Your email here
 
 ---
 
-## 🎉 **Status: Production Ready**
+## 🎯 Roadmap
 
-**✅ All systems operational**  
-**✅ Zero critical errors**  
-**✅ Enterprise-grade reliability**  
-**✅ Ready for live trading**
+- [x] Real-time portfolio tracking
+- [x] LSTM price predictions
+- [x] Google Cloud ML training
+- [x] Portfolio rebalancing
+- [x] Cyberpunk UI theme
+- [ ] Automated trading execution
+- [ ] Multi-exchange support
+- [ ] Mobile app
+- [ ] Trading bot automation
+- [ ] Advanced risk management
 
 ---
 
-*Last Updated: October 8, 2025*  
-*Version: 1.0.0*  
-*Status: Production Ready ✅*
+## 🌟 Star This Repo!
+
+If you find this project useful, please give it a ⭐ on GitHub!
+
+---
+
+**Built with 💙 for the crypto community**
+
+🚀 **NOVA** - Crypto Intelligence System
