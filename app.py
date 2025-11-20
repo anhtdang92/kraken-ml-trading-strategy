@@ -15,6 +15,10 @@ import subprocess
 import json
 import os
 
+# Import new UI components
+from ui.styles import THEME
+from ui.components import load_css, card_start, card_end, metric_card, section_header, status_badge
+
 # Helper functions for cloud progress tracking
 def get_training_job_status():
     """Get the status of the latest training job from Google Cloud."""
@@ -109,364 +113,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Dark mode theme configuration - futuristic cyberpunk aesthetic
-theme = {
-    'bg_primary': '#0a0a0a',
-    'bg_secondary': '#1a1a1a',
-    'bg_card': 'rgba(30, 30, 30, 0.7)',
-    'bg_glass': 'rgba(20, 20, 20, 0.6)',
-    'text_primary': '#ffffff',
-    'text_secondary': '#b0b0b0',
-    'text_muted': '#6b6b6b',
-    'accent_primary': '#00d9ff',  # Cyber blue
-    'accent_secondary': '#7b2ff7',  # Electric purple
-    'accent_success': '#00ff88',  # Neon green
-    'accent_warning': '#ffaa00',  # Tech orange
-    'accent_danger': '#ff3366',  # Hot pink
-    'border_color': 'rgba(0, 217, 255, 0.15)',
-    'shadow': 'rgba(0, 217, 255, 0.2)',
-    'sidebar_bg': 'rgba(10, 10, 10, 0.98)',
-    'glow': 'rgba(0, 217, 255, 0.5)',
-}
-
-# Custom CSS with futuristic cyberpunk aesthetic
-st.markdown(f"""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
-    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-    
-    /* Global Styles - Futuristic Cyberpunk */
-    * {{
-        font-family: 'Rajdhani', 'Orbitron', -apple-system, sans-serif;
-        letter-spacing: 0.02em;
-    }}
-    
-    .main {{
-        background: {theme['bg_primary']};
-        background-image: 
-            radial-gradient(at 0% 0%, rgba(0, 217, 255, 0.05) 0px, transparent 50%),
-            radial-gradient(at 100% 100%, rgba(123, 47, 247, 0.05) 0px, transparent 50%);
-        padding: 0rem 1rem;
-    }}
-    
-    /* Neon glow text */
-    .neon-text {{
-        color: {theme['accent_primary']};
-        text-shadow: 0 0 10px {theme['glow']}, 0 0 20px {theme['glow']}, 0 0 30px {theme['glow']};
-    }}
-    
-    /* Sidebar Glass Effect */
-    [data-testid="stSidebar"] {{
-        background: {theme['sidebar_bg']} !important;
-        backdrop-filter: blur(40px) saturate(180%);
-        -webkit-backdrop-filter: blur(40px) saturate(180%);
-        border-right: 1px solid {theme['border_color']};
-    }}
-    
-    [data-testid="stSidebar"] > div:first-child {{
-        background: transparent;
-    }}
-    
-    /* Glass Card Effect - Cyberpunk Neon */
-    .glass-card {{
-        background: {theme['bg_glass']};
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-radius: 16px;
-        border: 1px solid {theme['border_color']};
-        padding: 24px;
-        box-shadow: 0 8px 32px {theme['shadow']}, inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-    }}
-    
-    .glass-card:hover {{
-        transform: translateY(-4px);
-        border-color: {theme['accent_primary']};
-        box-shadow: 0 16px 48px {theme['shadow']}, 0 0 30px {theme['glow']}, inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }}
-    
-    .glass-card::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border-radius: 16px;
-        padding: 1px;
-        background: linear-gradient(135deg, {theme['accent_primary']}, {theme['accent_secondary']});
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }}
-    
-    .glass-card:hover::before {{
-        opacity: 0.6;
-    }}
-    
-    /* Metric Cards */
-    .stMetric {{
-        background: {theme['bg_glass']};
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        padding: 24px;
-        border-radius: 20px;
-        border: 1px solid {theme['border_color']};
-        box-shadow: 0 8px 32px {theme['shadow']};
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }}
-    
-    .stMetric:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 12px 48px {theme['shadow']};
-    }}
-    
-    /* Headers */
-    h1, h2, h3, h4, h5, h6 {{
-        color: {theme['text_primary']} !important;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-    }}
-    
-    h1 {{
-        font-size: 2.5rem;
-        font-weight: 700;
-    }}
-    
-    /* Text Colors */
-    p, span, div {{
-        color: {theme['text_primary']};
-    }}
-    
-    .text-secondary {{
-        color: {theme['text_secondary']};
-    }}
-    
-    .text-muted {{
-        color: {theme['text_muted']};
-    }}
-    
-    /* Buttons - Neon Cyberpunk */
-    .stButton > button {{
-        background: linear-gradient(135deg, {theme['accent_primary']}, {theme['accent_secondary']});
-        color: white;
-        border: 1px solid {theme['accent_primary']};
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 600;
-        font-size: 15px;
-        font-family: 'Orbitron', sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 20px {theme['shadow']}, 0 0 20px {theme['glow']};
-        position: relative;
-        overflow: hidden;
-    }}
-    
-    .stButton > button:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px {theme['shadow']}, 0 0 40px {theme['glow']};
-        border-color: {theme['accent_secondary']};
-    }}
-    
-    .stButton > button:active {{
-        transform: translateY(0);
-    }}
-    
-    /* Inputs */
-    .stTextInput > div > div > input,
-    .stSelectbox > div > div > select,
-    .stNumberInput > div > div > input {{
-        background: {theme['bg_card']};
-        backdrop-filter: blur(10px);
-        border: 1px solid {theme['border_color']};
-        border-radius: 12px;
-        color: {theme['text_primary']};
-        padding: 12px;
-        font-size: 15px;
-        transition: all 0.2s ease;
-    }}
-    
-    .stTextInput > div > div > input:focus,
-    .stSelectbox > div > div > select:focus,
-    .stNumberInput > div > div > input:focus {{
-        border-color: {theme['accent_primary']};
-        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-    }}
-    
-    /* Dataframes */
-    .stDataFrame {{
-        background: {theme['bg_glass']};
-        backdrop-filter: blur(20px);
-        border-radius: 16px;
-        overflow: hidden;
-        border: 1px solid {theme['border_color']};
-    }}
-    
-    /* Charts */
-    .js-plotly-plot {{
-        background: {theme['bg_glass']} !important;
-        backdrop-filter: blur(20px);
-        border-radius: 16px;
-        border: 1px solid {theme['border_color']};
-        padding: 16px;
-    }}
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {{
-        background: {theme['bg_glass']};
-        backdrop-filter: blur(20px);
-        border-radius: 12px;
-        padding: 4px;
-        gap: 4px;
-    }}
-    
-    .stTabs [data-baseweb="tab"] {{
-        background: transparent;
-        border-radius: 8px;
-        color: {theme['text_secondary']};
-        font-weight: 500;
-        padding: 12px 20px;
-        transition: all 0.2s ease;
-    }}
-    
-    .stTabs [aria-selected="true"] {{
-        background: {theme['accent_primary']};
-        color: white;
-    }}
-    
-    /* Expander */
-    .streamlit-expanderHeader {{
-        background: {theme['bg_glass']};
-        backdrop-filter: blur(20px);
-        border-radius: 12px;
-        border: 1px solid {theme['border_color']};
-        color: {theme['text_primary']};
-        font-weight: 500;
-        padding: 16px;
-        transition: all 0.2s ease;
-    }}
-    
-    .streamlit-expanderHeader:hover {{
-        background: {theme['bg_card']};
-        border-color: {theme['accent_primary']};
-    }}
-    
-    /* Success/Error/Warning/Info */
-    .stSuccess, .stError, .stWarning, .stInfo {{
-        background: {theme['bg_glass']};
-        backdrop-filter: blur(20px);
-        border-radius: 12px;
-        border: 1px solid {theme['border_color']};
-        padding: 16px;
-    }}
-    
-    /* Font Awesome Icons - Futuristic */
-    .fa, .fas, .far, .fab {{
-        font-size: 24px;
-        line-height: 1;
-        vertical-align: middle;
-    }}
-    
-    /* Icon glow effect */
-    .icon-glow {{
-        filter: drop-shadow(0 0 8px {theme['glow']});
-        transition: filter 0.3s ease;
-    }}
-    
-    .icon-glow:hover {{
-        filter: drop-shadow(0 0 16px {theme['glow']});
-    }}
-    
-    /* Scrollbar */
-    ::-webkit-scrollbar {{
-        width: 8px;
-        height: 8px;
-    }}
-    
-    ::-webkit-scrollbar-track {{
-        background: {theme['bg_secondary']};
-    }}
-    
-    ::-webkit-scrollbar-thumb {{
-        background: {theme['border_color']};
-        border-radius: 4px;
-    }}
-    
-    ::-webkit-scrollbar-thumb:hover {{
-        background: {theme['accent_primary']};
-    }}
-    
-    /* Animations */
-    @keyframes fadeIn {{
-        from {{ opacity: 0; transform: translateY(10px); }}
-        to {{ opacity: 1; transform: translateY(0); }}
-    }}
-    
-    .fade-in {{
-        animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }}
-    
-    @keyframes pulse {{
-        0%, 100% {{ opacity: 1; }}
-        50% {{ opacity: 0.6; }}
-    }}
-    
-    .pulse {{
-        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }}
-    
-    /* Modern Badge */
-    .badge {{
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 500;
-        background: {theme['bg_glass']};
-        backdrop-filter: blur(10px);
-        border: 1px solid {theme['border_color']};
-    }}
-    
-    /* Gradient Text - Cyberpunk Neon */
-    .gradient-text {{
-        background: linear-gradient(135deg, {theme['accent_primary']} 0%, {theme['accent_secondary']} 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 700;
-        font-family: 'Orbitron', sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        position: relative;
-    }}
-    
-    /* Cyberpunk scan lines */
-    @keyframes scan {{
-        0% {{ transform: translateY(-100%); }}
-        100% {{ transform: translateY(100%); }}
-    }}
-    
-    .scan-line {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, {theme['accent_primary']}, transparent);
-        opacity: 0.3;
-        animation: scan 4s linear infinite;
-        pointer-events: none;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
+# Load Global CSS
+load_css()
 
 # Import helper modules
 try:
@@ -544,18 +192,17 @@ def show_header():
         # Status indicator
         st.markdown(f"""
         <div class="fade-in" style="display: flex; align-items: center; gap: 12px;">
-            <div class="pulse" style="width: 8px; height: 8px; background: {theme['accent_success']}; border-radius: 50%; box-shadow: 0 0 12px {theme['accent_success']};"></div>
-            <span style="color: {theme['text_secondary']}; font-size: 13px; font-weight: 600; font-family: 'Orbitron', sans-serif;">ONLINE</span>
+            <div class="pulse" style="width: 8px; height: 8px; background: {THEME['accent_success']}; border-radius: 50%; box-shadow: 0 0 12px {THEME['accent_success']};"></div>
+            <span style="color: {THEME['text_secondary']}; font-size: 13px; font-weight: 600; font-family: 'Orbitron', sans-serif;">SYSTEM ONLINE</span>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown(f"""
         <div class="fade-in" style="text-align: center;">
-            <div class="scan-line"></div>
-            <h1 class="gradient-text neon-text" style="margin: 0; font-size: 2.8rem; text-shadow: 0 0 20px {theme['glow']};">N O V A</h1>
-            <p style="color: {theme['text_secondary']}; margin: 0; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.3em; font-family: 'Rajdhani', sans-serif;">
-                CRYPTO INTELLIGENCE SYSTEM
+            <h1 class="neon-text" style="margin: 0; font-size: 3.5rem; letter-spacing: 0.2em;">NOVA</h1>
+            <p style="color: {THEME['text_secondary']}; margin: 0; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.4em; font-family: 'Rajdhani', sans-serif;">
+                CRYPTO INTELLIGENCE
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -563,9 +210,15 @@ def show_header():
     with col3:
         st.markdown(f"""
         <div style="text-align: right; padding-top: 10px;">
-            <span class="badge" style="background: {theme['bg_glass']}; border: 1px solid {theme['accent_primary']}40; box-shadow: 0 0 10px {theme['glow']};">
-                <i class="fas fa-clock icon-glow" style="font-size: 16px; color: {theme['accent_primary']};"></i>
-                <span style="font-family: 'Orbitron', sans-serif; font-size: 12px;">{datetime.now().strftime('%H:%M:%S')}</span>
+            <span style="
+                background: {THEME['bg_glass']}; 
+                border: 1px solid {THEME['accent_primary']}40; 
+                padding: 6px 12px; 
+                border-radius: 20px;
+                box-shadow: 0 0 10px {THEME['glow_primary']};
+            ">
+                <i class="fas fa-clock" style="font-size: 14px; color: {THEME['accent_primary']}; margin-right: 8px;"></i>
+                <span style="font-family: 'Orbitron', sans-serif; font-size: 12px; color: {THEME['text_primary']};">{datetime.now().strftime('%H:%M:%S')}</span>
             </span>
         </div>
         """, unsafe_allow_html=True)
@@ -575,12 +228,7 @@ def show_portfolio_view():
     """Display portfolio overview with holdings and performance."""
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.markdown("""
-        <h1 style='color: #4ecdc4; margin: 0 0 20px 0; display: flex; align-items: center;'>
-            <span class='material-symbols-outlined' style='margin-right: 12px; font-size: 32px;'>account_balance</span>
-            Portfolio Overview
-        </h1>
-        """, unsafe_allow_html=True)
+        section_header("Portfolio Overview", icon="fa-wallet")
     with col2:
         if st.button("⟳ Refresh", use_container_width=True):
             st.cache_data.clear()
@@ -774,55 +422,18 @@ def show_portfolio_view():
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.markdown(f"""
-        <div class='glass-card fade-in' style='text-align: center;'>
-            <div style='display: flex; align-items: center; justify-content: center; margin-bottom: 16px;'>
-                <i class='fas fa-wallet icon-glow' style='font-size: 42px; color: {theme['accent_primary']};'></i>
-            </div>
-            <div style='color: {theme['text_muted']}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: "Orbitron", sans-serif;'>TOTAL VALUE</div>
-            <h1 style='color: {theme['text_primary']}; margin: 0; font-size: 2.5rem; font-weight: 700; font-family: "Orbitron", sans-serif; text-shadow: 0 0 20px {theme['glow']};'>${total_value:,.2f}</h1>
-            <p style='color: {theme['text_secondary']}; margin: 12px 0 0 0; font-size: 13px; letter-spacing: 0.05em;'>PORTFOLIO BALANCE</p>
-        </div>
-        """, unsafe_allow_html=True)
+        metric_card("TOTAL VALUE", f"${total_value:,.2f}", icon="fa-wallet")
     
     with col2:
-        pnl_color = theme['accent_success'] if total_pnl >= 0 else theme['accent_danger']
-        pnl_icon = "fa-arrow-trend-up" if total_pnl >= 0 else "fa-arrow-trend-down"
-        st.markdown(f"""
-        <div class='glass-card fade-in' style='text-align: center; animation-delay: 0.1s;'>
-            <div style='display: flex; align-items: center; justify-content: center; margin-bottom: 16px;'>
-                <i class='fas {pnl_icon} icon-glow' style='font-size: 42px; color: {pnl_color}; filter: drop-shadow(0 0 12px {pnl_color});'></i>
-            </div>
-            <div style='color: {theme['text_muted']}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: "Orbitron", sans-serif;'>TOTAL P&L</div>
-            <h1 style='color: {pnl_color}; margin: 0; font-size: 2.5rem; font-weight: 700; font-family: "Orbitron", sans-serif; text-shadow: 0 0 20px {pnl_color};'>${total_pnl:+,.2f}</h1>
-            <p style='color: {theme['text_secondary']}; margin: 12px 0 0 0; font-size: 13px; letter-spacing: 0.05em;'>{total_pnl_pct:+.2f}% RETURN</p>
-        </div>
-        """, unsafe_allow_html=True)
+        pnl_delta = f"{total_pnl:+.2f} ({total_pnl_pct:+.2f}%)"
+        metric_card("TOTAL P&L", f"${total_pnl:+,.2f}", delta=pnl_delta, icon="fa-chart-line")
     
     with col3:
-        st.markdown(f"""
-        <div class='glass-card fade-in' style='text-align: center; animation-delay: 0.2s;'>
-            <div style='display: flex; align-items: center; justify-content: center; margin-bottom: 16px;'>
-                <i class='fas fa-lock icon-glow' style='font-size: 42px; color: {theme['accent_warning']}; filter: drop-shadow(0 0 12px {theme['accent_warning']});'></i>
-            </div>
-            <div style='color: {theme['text_muted']}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: "Orbitron", sans-serif;'>STAKED VALUE</div>
-            <h1 style='color: {theme['text_primary']}; margin: 0; font-size: 2.5rem; font-weight: 700; font-family: "Orbitron", sans-serif; text-shadow: 0 0 20px {theme['glow']};'>${staked_value:,.2f}</h1>
-            <p style='color: {theme['text_secondary']}; margin: 12px 0 0 0; font-size: 13px; letter-spacing: 0.05em;'>EARNING REWARDS</p>
-        </div>
-        """, unsafe_allow_html=True)
+        metric_card("STAKED VALUE", f"${staked_value:,.2f}", icon="fa-lock")
     
     with col4:
         num_holdings = len(portfolio_data) + len(staked_data)
-        st.markdown(f"""
-        <div class='glass-card fade-in' style='text-align: center; animation-delay: 0.3s;'>
-            <div style='display: flex; align-items: center; justify-content: center; margin-bottom: 16px;'>
-                <i class='fas fa-database icon-glow' style='font-size: 42px; color: {theme['accent_secondary']}; filter: drop-shadow(0 0 12px {theme['accent_secondary']});'></i>
-            </div>
-            <div style='color: {theme['text_muted']}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: "Orbitron", sans-serif;'>TOTAL ASSETS</div>
-            <h1 style='color: {theme['text_primary']}; margin: 0; font-size: 2.5rem; font-weight: 700; font-family: "Orbitron", sans-serif; text-shadow: 0 0 20px {theme['glow']};'>{num_holdings}</h1>
-            <p style='color: {theme['text_secondary']}; margin: 12px 0 0 0; font-size: 13px; letter-spacing: 0.05em;'>LIQUID + STAKED</p>
-        </div>
-        """, unsafe_allow_html=True)
+        metric_card("TOTAL ASSETS", str(num_holdings), icon="fa-coins")
     
     st.markdown("---")
     
@@ -955,12 +566,7 @@ def show_live_prices():
     """Display live cryptocurrency prices with charts."""
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.markdown("""
-        <h1 style='color: #4ecdc4; margin: 0 0 20px 0; display: flex; align-items: center;'>
-            <span class='material-symbols-outlined' style='margin-right: 12px; font-size: 32px;'>trending_up</span>
-            Live Cryptocurrency Prices
-        </h1>
-        """, unsafe_allow_html=True)
+        section_header("Live Cryptocurrency Prices", icon="fa-arrow-trend-up")
     with col2:
         if st.button("⟳ Refresh Prices", use_container_width=True):
             st.cache_data.clear()
@@ -968,12 +574,12 @@ def show_live_prices():
     
     # Crypto configuration - using verified Kraken pairs
     cryptos = {
-        'XXBTZUSD': {'name': 'Bitcoin', 'symbol': 'BTC', 'icon': '₿', 'color': '#f7931a'},
-        'XETHZUSD': {'name': 'Ethereum', 'symbol': 'ETH', 'icon': 'Ξ', 'color': '#627eea'},
-        'SOLUSD': {'name': 'Solana', 'symbol': 'SOL', 'icon': '◎', 'color': '#9945ff'},
-        'ADAUSD': {'name': 'Cardano', 'symbol': 'ADA', 'icon': '₳', 'color': '#0033ad'},
-        'XXRPZUSD': {'name': 'Ripple', 'symbol': 'XRP', 'icon': '✕', 'color': '#23292f'},
-        'DOTUSD': {'name': 'Polkadot', 'symbol': 'DOT', 'icon': '●', 'color': '#e6007a'}
+        'XXBTZUSD': {'name': 'Bitcoin', 'symbol': 'BTC', 'icon': 'fa-bitcoin', 'color': '#f7931a'},
+        'XETHZUSD': {'name': 'Ethereum', 'symbol': 'ETH', 'icon': 'fa-ethereum', 'color': '#627eea'},
+        'SOLUSD': {'name': 'Solana', 'symbol': 'SOL', 'icon': 'fa-bolt', 'color': '#9945ff'},
+        'ADAUSD': {'name': 'Cardano', 'symbol': 'ADA', 'icon': 'fa-coins', 'color': '#0033ad'},
+        'XXRPZUSD': {'name': 'Ripple', 'symbol': 'XRP', 'icon': 'fa-water', 'color': '#23292f'},
+        'DOTUSD': {'name': 'Polkadot', 'symbol': 'DOT', 'icon': 'fa-circle-nodes', 'color': '#e6007a'}
     }
     
     # Fetch ticker data
@@ -1023,23 +629,23 @@ def show_live_prices():
                 <div class='glass-card fade-in' style='animation-delay: {crypto_idx * 0.1}s;'>
                     <div style='display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;'>
                         <div style='display: flex; align-items: center;'>
-                            <span style='color: {info['color']}; font-size: 28px; margin-right: 10px;'>{info['icon']}</span>
+                            <i class="fa-brands {info['icon']}" style="font-size: 24px; color: {info['color']}; margin-right: 10px;"></i>
                             <div>
-                                <h4 style='color: {theme['text_primary']}; margin: 0; font-size: 1.1rem; font-weight: 600;'>{info['name']}</h4>
-                                <span style='color: {theme['text_muted']}; font-size: 12px;'>{info['symbol']}/USD</span>
+                                <h4 style='color: {THEME['text_primary']}; margin: 0; font-size: 1.1rem; font-weight: 600;'>{info['name']}</h4>
+                                <span style='color: {THEME['text_muted']}; font-size: 12px;'>{info['symbol']}/USD</span>
                             </div>
                         </div>
                         <div class='badge' style='background: {change_color}20; border-color: {change_color}40;'>
                             <span style='color: {change_color}; font-weight: 600;'>{change_symbol} {price_change:+.2f}%</span>
                         </div>
                     </div>
-                    <h1 style='color: {theme['text_primary']}; margin: 0 0 16px 0; font-size: 2rem; font-weight: 700;'>${current_price:,.2f}</h1>
-                    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 8px; color: {theme['text_secondary']}; font-size: 13px;'>
-                        <div><span style='color: {theme['text_muted']}; font-size: 11px;'>24h High</span><br><strong style='color: {theme['text_primary']};'>${day_high:,.2f}</strong></div>
-                        <div><span style='color: {theme['text_muted']}; font-size: 11px;'>24h Low</span><br><strong style='color: {theme['text_primary']};'>${day_low:,.2f}</strong></div>
+                    <h1 style='color: {THEME['text_primary']}; margin: 0 0 16px 0; font-size: 2rem; font-weight: 700;'>${current_price:,.2f}</h1>
+                    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 8px; color: {THEME['text_secondary']}; font-size: 13px;'>
+                        <div><span style='color: {THEME['text_muted']}; font-size: 11px;'>24h High</span><br><strong style='color: {THEME['text_primary']};'>${day_high:,.2f}</strong></div>
+                        <div><span style='color: {THEME['text_muted']}; font-size: 11px;'>24h Low</span><br><strong style='color: {THEME['text_primary']};'>${day_low:,.2f}</strong></div>
                     </div>
-                    <div style='margin-top: 12px; padding-top: 12px; border-top: 1px solid {theme['border_color']}; color: {theme['text_secondary']}; font-size: 12px;'>
-                        <span style='color: {theme['text_muted']};'>Volume:</span> <strong style='color: {theme['text_primary']};'>{volume:,.0f}</strong> {info['symbol']}
+                    <div style='margin-top: 12px; padding-top: 12px; border-top: 1px solid {THEME['border_color']}; color: {THEME['text_secondary']}; font-size: 12px;'>
+                        <span style='color: {THEME['text_muted']};'>Volume:</span> <strong style='color: {THEME['text_primary']};'>{volume:,.0f}</strong> {info['symbol']}
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -1056,7 +662,7 @@ def show_live_prices():
         selected_crypto = st.selectbox(
         "Select cryptocurrency:",
         options=list(cryptos.keys()),
-        format_func=lambda x: f"{cryptos[x]['icon']} {cryptos[x]['name']} ({cryptos[x]['symbol']})"
+        format_func=lambda x: f"{cryptos[x]['name']} ({cryptos[x]['symbol']})"
     )
     
     with col2:
@@ -1109,7 +715,7 @@ def show_live_prices():
         
         # Apply portfolio-style theming
         fig.update_layout(
-            title=f"{cryptos[selected_crypto]['icon']} {cryptos[selected_crypto]['name']} Price Chart",
+            title=f"{cryptos[selected_crypto]['name']} Price Chart",
             yaxis_title="Price (USD)",
             xaxis_title="Time",
             height=500,
@@ -1157,49 +763,16 @@ def show_live_prices():
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            change_color = "#00ff88" if change_24h >= 0 else "#ff4757"
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid {change_color}; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
-                <div style='display: flex; align-items: center; margin-bottom: 12px;'>
-                    <span style='color: {change_color}; font-size: 24px; margin-right: 8px;' class='material-symbols-outlined'>percent</span>
-                    <h4 style='color: {change_color}; margin: 0;'>24h Change</h4>
-                </div>
-                <h2 style='color: {change_color}; margin: 5px 0; font-size: 28px;'>{change_24h:+.2f}%</h2>
-            </div>
-            """, unsafe_allow_html=True)
+            metric_card("24h Change", f"{change_24h:+.2f}%", icon="fa-percent")
         
         with col2:
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid #4ecdc4; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
-                <div style='display: flex; align-items: center; margin-bottom: 12px;'>
-                    <span style='color: #4ecdc4; font-size: 24px; margin-right: 8px;' class='material-symbols-outlined'>bar_chart</span>
-                    <h4 style='color: #4ecdc4; margin: 0;'>24h Volume</h4>
-                </div>
-                <h2 style='color: white; margin: 5px 0; font-size: 28px;'>{volume_24h:,.0f}</h2>
-            </div>
-            """, unsafe_allow_html=True)
+            metric_card("24h Volume", f"{volume_24h:,.0f}", icon="fa-chart-bar")
         
         with col3:
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid #4ecdc4; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
-                <div style='display: flex; align-items: center; margin-bottom: 12px;'>
-                    <span style='color: #4ecdc4; font-size: 24px; margin-right: 8px;' class='material-symbols-outlined'>arrow_upward</span>
-                    <h4 style='color: #4ecdc4; margin: 0;'>24h High</h4>
-                </div>
-                <h2 style='color: white; margin: 5px 0; font-size: 28px;'>${high_24h:,.2f}</h2>
-            </div>
-            """, unsafe_allow_html=True)
+            metric_card("24h High", f"${high_24h:,.2f}", icon="fa-arrow-up")
         
         with col4:
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 15px; border: 2px solid #4ecdc4; box-shadow: 0 8px 24px rgba(0,0,0,0.3);'>
-                <div style='display: flex; align-items: center; margin-bottom: 12px;'>
-                    <span style='color: #4ecdc4; font-size: 24px; margin-right: 8px;' class='material-symbols-outlined'>arrow_downward</span>
-                    <h4 style='color: #4ecdc4; margin: 0;'>24h Low</h4>
-                </div>
-                <h2 style='color: white; margin: 5px 0; font-size: 28px;'>${low_24h:,.2f}</h2>
-            </div>
-            """, unsafe_allow_html=True)
+            metric_card("24h Low", f"${low_24h:,.2f}", icon="fa-arrow-down")
         
     else:
         st.warning("Unable to fetch chart data. Please try again.")
@@ -1209,12 +782,7 @@ def show_predictions():
     """Display ML predictions with real-time data and model training."""
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.markdown("""
-        <h1 style='color: #4ecdc4; margin: 0 0 20px 0; display: flex; align-items: center;'>
-            <span class='material-symbols-outlined' style='margin-right: 12px; font-size: 32px;'>psychology</span>
-            ML Price Predictions
-        </h1>
-        """, unsafe_allow_html=True)
+        section_header("ML Price Predictions", icon="fa-brain")
     with col2:
         if st.button("⟳ Refresh Predictions", use_container_width=True):
             st.cache_data.clear()
@@ -1242,11 +810,11 @@ def show_predictions():
         # Show system status
         training_status = get_training_job_status()
         if training_status == "JOB_STATE_SUCCEEDED":
-            st.success("✅ ML Model Ready")
+            status_badge("online", "ML MODEL READY")
         elif training_status == "JOB_STATE_RUNNING":
-            st.info("🔄 ML Training...")
+            status_badge("training", "ML TRAINING...")
         else:
-            st.warning("⏳ ML Model Pending")
+            status_badge("offline", "ML MODEL PENDING")
     
     # Initialize prediction service
     prediction_service = None
@@ -1278,67 +846,15 @@ def show_predictions():
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-                border: 2px solid #4caf50;
-                border-radius: 10px;
-                padding: 15px;
-                text-align: center;
-                margin: 10px 0;
-            ">
-                <div style="font-size: 18px; font-weight: bold; color: #4caf50; margin-bottom: 5px;">
-                    ✅ Enhanced Mock
-                </div>
-                <div style="font-size: 12px; color: #cccccc;">
-                    Real-time data + Technical analysis
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            metric_card("Enhanced Mock", "Active", icon="fa-check-circle")
         
         with col2:
-            vertex_status = "✅ Available" if system_summary['vertex_ai_available'] else "❌ Not Available"
-            vertex_color = "#4caf50" if system_summary['vertex_ai_available'] else "#f44336"
-            
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-                border: 2px solid {vertex_color};
-                border-radius: 10px;
-                padding: 15px;
-                text-align: center;
-                margin: 10px 0;
-            ">
-                <div style="font-size: 18px; font-weight: bold; color: {vertex_color}; margin-bottom: 5px;">
-                    {vertex_status}
-                </div>
-                <div style="font-size: 12px; color: #cccccc;">
-                    Vertex AI ML Models
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            vertex_status = "Available" if system_summary['vertex_ai_available'] else "Unavailable"
+            metric_card("Vertex AI", vertex_status, icon="fa-cloud")
         
         with col3:
-            local_status = "✅ Available" if system_summary['local_ml_models_available'] else "❌ Not Available"
-            local_color = "#4caf50" if system_summary['local_ml_models_available'] else "#f44336"
-            
-            st.markdown(f"""
-            <div style="
-                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-                border: 2px solid {local_color};
-                border-radius: 10px;
-                padding: 15px;
-                text-align: center;
-                margin: 10px 0;
-            ">
-                <div style="font-size: 18px; font-weight: bold; color: {local_color}; margin-bottom: 5px;">
-                    {local_status}
-                </div>
-                <div style="font-size: 12px; color: #cccccc;">
-                    Local ML Models ({system_summary['local_ml_models_count']})
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            local_status = "Available" if system_summary['local_ml_models_available'] else "Unavailable"
+            metric_card("Local Models", local_status, icon="fa-server")
         
     # Set prediction service based on mode
     try:
@@ -1512,65 +1028,51 @@ def show_predictions():
                 
                 # Determine colors based on prediction
                 if pred['predicted_return'] > 0.02:  # > 2% gain
-                    border_color = "#00ff88"
-                    return_color = "#00ff88"
+                    return_color = THEME['accent_success']
                     return_symbol = "↗"
                 elif pred['predicted_return'] < -0.02:  # < -2% loss
-                    border_color = "#ff4757"
-                    return_color = "#ff4757"
+                    return_color = THEME['accent_danger']
                     return_symbol = "↘"
                 else:  # Neutral
-                    border_color = "#4ecdc4"
-                    return_color = "#4ecdc4"
+                    return_color = THEME['accent_primary']
                     return_symbol = "→"
-                
-                # Confidence color
-                conf_color = "#00ff00" if pred['confidence'] > 0.7 else "#ffaa00" if pred['confidence'] > 0.5 else "#ff4444"
                 
                 with col:
                     # Create a container with custom styling
-                    with st.container():
-                        # Header with symbol and confidence
-                        col_header, col_conf = st.columns([3, 1])
-                        with col_header:
-                            st.markdown(f"### {pred['symbol']} {return_symbol}")
-                        with col_conf:
-                            st.markdown(f"**{pred['confidence']*100:.0f}%**")
+                    st.markdown(f"""
+                    <div class="glass-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 style="margin: 0; color: {THEME['text_primary']};">{pred['symbol']} {return_symbol}</h3>
+                            <span class="badge" style="background: {return_color}20; color: {return_color}; border-color: {return_color};">
+                                {pred['confidence']*100:.0f}% CONFIDENCE
+                            </span>
+                        </div>
                         
-                        # Current price section
-                        st.markdown("**Current Price**")
-                        st.markdown(f"# ${pred['current_price']:,.2f}")
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div>
+                                <div style="font-size: 0.8rem; color: {THEME['text_muted']};">CURRENT</div>
+                                <div style="font-size: 1.2rem; font-weight: bold; color: {THEME['text_primary']};">${pred['current_price']:,.2f}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8rem; color: {THEME['text_muted']};">PREDICTED</div>
+                                <div style="font-size: 1.2rem; font-weight: bold; color: {THEME['text_primary']};">${pred['predicted_price']:,.2f}</div>
+                            </div>
+                        </div>
                         
-                        # Predicted price section
-                        st.markdown("**Predicted Price**")
-                        st.markdown(f"## ${pred['predicted_price']:,.2f}")
+                        <div style="text-align: center; padding: 8px; background: {return_color}10; border-radius: 8px; border: 1px solid {return_color}40;">
+                            <span style="color: {return_color}; font-weight: bold; font-size: 1.1rem;">
+                                {pred['predicted_return']*100:+.2f}%
+                            </span>
+                            <span style="color: {THEME['text_secondary']}; font-size: 0.8rem; margin-left: 5px;">
+                                ({days_ahead}d forecast)
+                            </span>
+                        </div>
                         
-                        # Return percentage with color
-                        if pred['predicted_return'] > 0.02:
-                            st.success(f"↗ **+{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
-                        elif pred['predicted_return'] < -0.02:
-                            st.error(f"↘ **{pred['predicted_return']*100:.2f}%** ({days_ahead}d forecast)")
-                        else:
-                            st.info(f"→ **{pred['predicted_return']*100:+.2f}%** ({days_ahead}d forecast)")
-                        
-                        # Prediction source info
-                        prediction_source = pred.get('prediction_source', 'unknown')
-                        prediction_type = pred.get('prediction_type', 'unknown')
-                        
-                        # Source badges
-                        if prediction_source == 'vertex_ai_ml':
-                            st.success("🤖 **Vertex AI ML Model**")
-                        elif prediction_source == 'local_ml':
-                            st.success("🧠 **Local ML Model**")
-                        elif prediction_source == 'enhanced_mock':
-                            st.info("🔧 **Enhanced Mock**")
-                        else:
-                            st.warning("⚠️ **Basic Mock**")
-                        
-                        # Model info
-                        st.caption(f"Status: {pred['status']}")
-                        
-                        st.markdown("---")
+                        <div style="margin-top: 10px; font-size: 0.7rem; color: {THEME['text_muted']}; text-align: right;">
+                            Source: {pred.get('prediction_source', 'unknown').replace('_', ' ').title()}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -1601,8 +1103,11 @@ def show_predictions():
         })
     
     if table_data:
-        df = pd.DataFrame(table_data)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        st.dataframe(
+            pd.DataFrame(table_data),
+            use_container_width=True,
+            hide_index=True
+        )
     
     # Model training section
     st.markdown("---")
@@ -2933,18 +2438,18 @@ def main():
     
     # Enhanced sidebar navigation with cyberpunk glass effect
     st.sidebar.markdown(f"""
-    <div class='glass-card fade-in' style='text-align: center; margin-bottom: 24px; border: 1px solid {theme['accent_primary']}40; box-shadow: 0 0 30px {theme['glow']};'>
-        <div style='display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(135deg, {theme['accent_primary']}, {theme['accent_secondary']}); margin-bottom: 16px; box-shadow: 0 8px 32px {theme['glow']}, inset 0 2px 4px rgba(255,255,255,0.2);'>
+    <div class='glass-card fade-in' style='text-align: center; margin-bottom: 24px; border: 1px solid {THEME['accent_primary']}40; box-shadow: 0 0 30px {THEME['glow_primary']};'>
+        <div style='display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(135deg, {THEME['accent_primary']}, {THEME['accent_secondary']}); margin-bottom: 16px; box-shadow: 0 8px 32px {THEME['glow_primary']}, inset 0 2px 4px rgba(255,255,255,0.2);'>
             <i class="fas fa-bolt icon-glow" style="color: white; font-size: 40px;"></i>
         </div>
         <h2 class='gradient-text' style='margin: 0 0 8px 0; font-size: 1.9rem; letter-spacing: 0.2em;'>NOVA</h2>
-        <p style='color: {theme['text_secondary']}; margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.3em; font-family: "Rajdhani", sans-serif;'>CRYPTO INTELLIGENCE</p>
+        <p style='color: {THEME['text_secondary']}; margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.3em; font-family: "Rajdhani", sans-serif;'>CRYPTO INTELLIGENCE</p>
     </div>
     """, unsafe_allow_html=True)
     
     st.sidebar.markdown(f"""
-    <h3 style='color: {theme['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
-        <i class='fas fa-th' style='margin-right: 10px; font-size: 18px; color: {theme['accent_primary']};'></i>
+    <h3 style='color: {THEME['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
+        <i class='fas fa-th' style='margin-right: 10px; font-size: 18px; color: {THEME['accent_primary']};'></i>
         NAVIGATION
     </h3>
     """, unsafe_allow_html=True)
@@ -2980,11 +2485,11 @@ def main():
             # Current page - highlighted with glass effect
             st.sidebar.markdown(f"""
             <div class='glass-card' style='
-                background: linear-gradient(135deg, {theme['accent_primary']}, {theme['accent_secondary']});
+                background: linear-gradient(135deg, {THEME['accent_primary']}, {THEME['accent_secondary']});
                 border: none;
                 margin: 8px 0;
                 padding: 18px 16px;
-                box-shadow: 0 8px 32px {theme['glow']};
+                box-shadow: 0 8px 32px {THEME['glow_primary']};
                 cursor: pointer;
             '>
                 <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 8px;'>
@@ -3038,30 +2543,30 @@ def main():
     
     # Compact system status
     st.sidebar.markdown(f"""
-    <h3 style='color: {theme['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
-        <i class='fas fa-chart-line' style='margin-right: 10px; font-size: 18px; color: {theme['accent_primary']};'></i>
+    <h3 style='color: {THEME['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
+        <i class='fas fa-chart-line' style='margin-right: 10px; font-size: 18px; color: {THEME['accent_primary']};'></i>
         SYSTEM STATUS
     </h3>
     """, unsafe_allow_html=True)
     
     # Single status card with key indicators - cyberpunk style
     st.sidebar.markdown(f"""
-    <div class='glass-card' style='text-align: center; padding: 20px; border: 1px solid {theme['accent_primary']}30;'>
+    <div class='glass-card' style='text-align: center; padding: 20px; border: 1px solid {THEME['accent_primary']}30;'>
         <div style='display: flex; justify-content: space-around;'>
             <div style='text-align: center;'>
-                <i class='fas fa-check-circle icon-glow' style='color: {theme['accent_success']}; font-size: 28px; margin-bottom: 8px; filter: drop-shadow(0 0 8px {theme['accent_success']});'></i>
-                <div style='color: {theme['text_primary']}; font-size: 11px; font-weight: 700; margin-bottom: 2px; font-family: "Orbitron", sans-serif;'>KRAKEN</div>
-                <div style='color: {theme['text_muted']}; font-size: 9px; letter-spacing: 0.05em;'>CONNECTED</div>
+                <i class='fas fa-check-circle icon-glow' style='color: {THEME['accent_success']}; font-size: 28px; margin-bottom: 8px; filter: drop-shadow(0 0 8px {THEME['accent_success']});'></i>
+                <div style='color: {THEME['text_primary']}; font-size: 11px; font-weight: 700; margin-bottom: 2px; font-family: "Orbitron", sans-serif;'>KRAKEN</div>
+                <div style='color: {THEME['text_muted']}; font-size: 9px; letter-spacing: 0.05em;'>CONNECTED</div>
             </div>
             <div style='text-align: center;'>
-                <i class='fas fa-microchip icon-glow' style='color: {theme['accent_warning']}; font-size: 28px; margin-bottom: 8px; filter: drop-shadow(0 0 8px {theme['accent_warning']});'></i>
-                <div style='color: {theme['text_primary']}; font-size: 11px; font-weight: 700; margin-bottom: 2px; font-family: "Orbitron", sans-serif;'>ML</div>
-                <div style='color: {theme['text_muted']}; font-size: 9px; letter-spacing: 0.05em;'>TRAINING</div>
+                <i class='fas fa-microchip icon-glow' style='color: {THEME['accent_warning']}; font-size: 28px; margin-bottom: 8px; filter: drop-shadow(0 0 8px {THEME['accent_warning']});'></i>
+                <div style='color: {THEME['text_primary']}; font-size: 11px; font-weight: 700; margin-bottom: 2px; font-family: "Orbitron", sans-serif;'>ML</div>
+                <div style='color: {THEME['text_muted']}; font-size: 9px; letter-spacing: 0.05em;'>TRAINING</div>
             </div>
             <div style='text-align: center;'>
-                <i class='fas fa-shield-alt icon-glow' style='color: {theme['accent_primary']}; font-size: 28px; margin-bottom: 8px; filter: drop-shadow(0 0 8px {theme['accent_primary']});'></i>
-                <div style='color: {theme['text_primary']}; font-size: 11px; font-weight: 700; margin-bottom: 2px; font-family: "Orbitron", sans-serif;'>PAPER</div>
-                <div style='color: {theme['text_muted']}; font-size: 9px; letter-spacing: 0.05em;'>SAFE</div>
+                <i class='fas fa-shield-alt icon-glow' style='color: {THEME['accent_primary']}; font-size: 28px; margin-bottom: 8px; filter: drop-shadow(0 0 8px {THEME['accent_primary']});'></i>
+                <div style='color: {THEME['text_primary']}; font-size: 11px; font-weight: 700; margin-bottom: 2px; font-family: "Orbitron", sans-serif;'>PAPER</div>
+                <div style='color: {THEME['text_muted']}; font-size: 9px; letter-spacing: 0.05em;'>SAFE</div>
             </div>
         </div>
     </div>
@@ -3070,8 +2575,8 @@ def main():
     # Enhanced about section
     st.sidebar.markdown("---")
     st.sidebar.markdown(f"""
-    <h3 style='color: {theme['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
-        <i class='fas fa-info-circle' style='margin-right: 10px; font-size: 18px; color: {theme['accent_primary']};'></i>
+    <h3 style='color: {THEME['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
+        <i class='fas fa-info-circle' style='margin-right: 10px; font-size: 18px; color: {THEME['accent_primary']};'></i>
         ABOUT
     </h3>
     """, unsafe_allow_html=True)
@@ -3080,16 +2585,16 @@ def main():
         <div class='gradient-text' style='font-weight: 700; margin-bottom: 12px; font-size: 1rem;'>NOVA Console</div>
         <div style='display: grid; gap: 8px;'>
             <div style='display: flex; justify-content: space-between; align-items: center;'>
-                <span style='color: {theme['text_muted']}; font-size: 11px;'>Version</span>
+                <span style='color: {THEME['text_muted']}; font-size: 11px;'>Version</span>
                 <span class='badge' style='font-size: 10px; padding: 4px 8px;'>v1.0.0</span>
             </div>
             <div style='display: flex; justify-content: space-between; align-items: center;'>
-                <span style='color: {theme['text_muted']}; font-size: 11px;'>Data Source</span>
-                <span style='color: {theme['text_primary']}; font-size: 11px; font-weight: 600;'>Kraken API</span>
+                <span style='color: {THEME['text_muted']}; font-size: 11px;'>Data Source</span>
+                <span style='color: {THEME['text_primary']}; font-size: 11px; font-weight: 600;'>Kraken API</span>
             </div>
             <div style='display: flex; justify-content: space-between; align-items: center;'>
-                <span style='color: {theme['text_muted']}; font-size: 11px;'>ML Engine</span>
-                <span style='color: {theme['text_primary']}; font-size: 11px; font-weight: 600;'>LSTM</span>
+                <span style='color: {THEME['text_muted']}; font-size: 11px;'>ML Engine</span>
+                <span style='color: {THEME['text_primary']}; font-size: 11px; font-weight: 600;'>LSTM</span>
             </div>
         </div>
     </div>
@@ -3097,30 +2602,30 @@ def main():
     
     # Progress indicator
     st.sidebar.markdown(f"""
-    <h3 style='color: {theme['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
-        <i class='fas fa-chart-bar' style='margin-right: 10px; font-size: 18px; color: {theme['accent_primary']};'></i>
+    <h3 style='color: {THEME['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
+        <i class='fas fa-chart-bar' style='margin-right: 10px; font-size: 18px; color: {THEME['accent_primary']};'></i>
         PROGRESS
     </h3>
     """, unsafe_allow_html=True)
     
     # Mock progress data
     progress_data = {
-        "Data Collection": (95, theme['accent_success']),
-        "ML Training": (60, theme['accent_warning']),
-        "Portfolio": (100, theme['accent_success']),
-        "Rebalancing": (85, theme['accent_primary'])
+        "Data Collection": (95, THEME['accent_success']),
+        "ML Training": (60, THEME['accent_warning']),
+        "Portfolio": (100, THEME['accent_success']),
+        "Rebalancing": (85, THEME['accent_primary'])
     }
     
     for component, (progress, color) in progress_data.items():
         st.sidebar.markdown(f"""
         <div class='glass-card' style='padding: 12px; margin: 8px 0;'>
             <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;'>
-                <span style='color: {theme['text_primary']}; font-size: 11px; font-weight: 600;'>{component}</span>
+                <span style='color: {THEME['text_primary']}; font-size: 11px; font-weight: 600;'>{component}</span>
                 <span style='color: {color}; font-size: 11px; font-weight: 700;'>{progress}%</span>
             </div>
-            <div style='background: {theme['bg_secondary']}; border-radius: 10px; height: 6px; overflow: hidden;'>
+            <div style='background: {THEME['bg_secondary']}; border-radius: 10px; height: 6px; overflow: hidden;'>
                 <div style='
-                    background: linear-gradient(90deg, {color}, {theme['accent_secondary']});
+                    background: linear-gradient(90deg, {color}, {THEME['accent_secondary']});
                     height: 100%;
                     width: {progress}%;
                     border-radius: 10px;
@@ -3145,12 +2650,12 @@ def main():
     page_icon = page_icon_map.get(page, "fa-th")
     
     st.markdown(f"""
-    <div class='glass-card fade-in' style='text-align: center; padding: 36px; margin: 24px 0; border: 1px solid {theme['accent_primary']}40; box-shadow: 0 0 40px {theme['glow']};'>
-        <div style='display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 24px; background: linear-gradient(135deg, {theme['accent_primary']}, {theme['accent_secondary']}); margin-bottom: 24px; box-shadow: 0 12px 40px {theme['glow']}, inset 0 2px 4px rgba(255,255,255,0.2);'>
+    <div class='glass-card fade-in' style='text-align: center; padding: 36px; margin: 24px 0; border: 1px solid {THEME['accent_primary']}40; box-shadow: 0 0 40px {THEME['glow_primary']};'>
+        <div style='display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 24px; background: linear-gradient(135deg, {THEME['accent_primary']}, {THEME['accent_secondary']}); margin-bottom: 24px; box-shadow: 0 12px 40px {THEME['glow_primary']}, inset 0 2px 4px rgba(255,255,255,0.2);'>
             <i class="fas {page_icon} icon-glow" style="color: white; font-size: 44px;"></i>
         </div>
         <h1 class='gradient-text' style='margin: 0 0 12px 0; font-size: 2.5rem; letter-spacing: 0.2em;'>{page.split(' ', 1)[1].upper() if ' ' in page else page.upper()}</h1>
-        <p style='color: {theme['text_secondary']}; margin: 0; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.3em; font-family: "Rajdhani", sans-serif;'>AI-POWERED CRYPTOCURRENCY ANALYTICS</p>
+        <p style='color: {THEME['text_secondary']}; margin: 0; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.3em; font-family: "Rajdhani", sans-serif;'>AI-POWERED CRYPTOCURRENCY ANALYTICS</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -3170,8 +2675,8 @@ def main():
     # Enhanced refresh controls - Cyberpunk
     st.sidebar.markdown("---")
     st.sidebar.markdown(f"""
-    <h3 style='color: {theme['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
-        <i class='fas fa-sync-alt' style='margin-right: 10px; font-size: 18px; color: {theme['accent_primary']};'></i>
+    <h3 style='color: {THEME['text_primary']}; margin: 0 0 16px 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; font-family: "Orbitron", sans-serif;'>
+        <i class='fas fa-sync-alt' style='margin-right: 10px; font-size: 18px; color: {THEME['accent_primary']};'></i>
         CONTROLS
     </h3>
     """, unsafe_allow_html=True)
