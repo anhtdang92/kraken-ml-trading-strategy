@@ -574,7 +574,7 @@ BigQuery (predictions) → Rebalancer → Brokerage API (orders)
 1. **yfinance Integration**: Simple and reliable data source, no authentication complexity
 2. **Stock Data Handling**: Need to handle market hours, splits, dividends properly
 3. **Streamlit Caching**: `@st.cache_data` is crucial for performance with API calls
-4. **Symbol Standardization**: Stock symbols are straightforward compared to crypto exchanges
+4. **Symbol Standardization**: Stock symbols are straightforward and standardized across data providers
 
 **UI/UX Learnings:**
 1. **Large KPIs Work Better**: Users prefer big, colorful cards over small metrics

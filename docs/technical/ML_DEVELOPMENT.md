@@ -168,12 +168,12 @@ Output: Predicted 21-day return (%)
 **Output Format:**
 ```python
 {
-    'symbol': 'BTC',
+    'symbol': 'AAPL',
     'prediction_date': '2025-10-11',
     'predicted_return': 0.05,  # 5% expected return
     'confidence': 0.78,         # 78% confidence
-    'current_price': 122000,
-    'predicted_price': 128100
+    'current_price': 178.50,
+    'predicted_price': 187.43
 }
 ```
 
@@ -190,14 +190,14 @@ def calculate_ml_allocation(predictions):
     """
     Adjust allocation based on ML predictions.
     
-    Baseline: 25% each (equal weight)
+    Baseline: Equal weight across ~30 stocks
     ML Enhancement:
-    - High confidence positive (>5% predicted, >70% conf): 40%
-    - Moderate positive (2-5% predicted): 30%
-    - Neutral (-2% to 2%): 25%
-    - Negative (<-2% predicted): 10%
+    - High confidence positive (>5% predicted, >70% conf): Overweight (up to 15%)
+    - Moderate positive (2-5% predicted): Slight overweight
+    - Neutral (-2% to 2%): Market weight
+    - Negative (<-2% predicted): Underweight (down to 2%)
     """
-    # Apply risk constraints
+    # Apply risk constraints (max 15%, min 2%)
     # Normalize to 100%
     # Return allocation dictionary
 ```
@@ -221,33 +221,34 @@ def calculate_ml_allocation(predictions):
 
 #### 5:00 PM - Data Collection ✅ COMPLETE
 - Built historical_data_fetcher.py (300+ lines, fully documented)
-- Fetched 1 year of data for AAPL, MSFT, GOOGL, AMZN
-- **365 days per symbol** (1,460 total records)
+- Fetched 1 year of data for initial stock universe
+- **365 days per symbol**
 - Data ranges: Oct 2024 - Oct 2025
 - All data validated (no nulls, no negatives, chronological)
 - Ready for feature engineering
 
 **Data Summary:**
-- **BTC:** $60K - $123K range | 1,779 avg volume
-- **ETH:** $1,472 - $4,830 range | 25,160 avg volume
-- **SOL:** $105 - $261 range | 284K avg volume
-- **ADA:** $0.33 - $1.23 range | 16.6M avg volume
+- **AAPL:** Price history with full OHLCV coverage
+- **MSFT:** Price history with full OHLCV coverage
+- **GOOGL:** Price history with full OHLCV coverage
+- **AMZN:** Price history with full OHLCV coverage
 
 #### 5:45 PM - Feature Engineering ✅ COMPLETE
 - Built feature_engineering.py (300+ lines, fully documented)
-- Created 11 technical indicators:
-  * Moving Averages (7, 14, 30-day)
+- Created 25 technical indicators:
+  * Moving Averages (7, 14, 30, 50, 200-day)
   * RSI (14-day momentum oscillator)
+  * MACD (signal line and histogram)
+  * Bollinger Bands (upper, lower, bandwidth)
   * Volume indicators (MA, ROC)
-  * Price momentum (daily, 7-day)
-  * Volatility (7-day std dev)
-- Tested sequence creation (7-day lookback → 7-day prediction)
-- Created 86 training sequences from test data
+  * Price momentum (daily, 7-day, 21-day)
+  * Volatility (7-day std dev, ATR)
+- Tested sequence creation (30-day lookback -> 21-day prediction)
 - All features properly normalized
 
 #### 6:15 PM - LSTM Model Architecture ✅ COMPLETE
 - Built lstm_model.py (400+ lines, fully documented)
-- 2-layer LSTM with 50 units each
+- 2-layer LSTM with 64 units each
 - Dropout layers (0.2) for regularization
 - Dense output layer for prediction
 - Configured Adam optimizer, MSE loss
@@ -272,15 +273,17 @@ def calculate_ml_allocation(predictions):
 
 ## 🔧 Technical Decisions
 
-### Why 7-Day Lookback?
-- Captures weekly patterns (weekday/weekend effects)
+### Why 30-Day Lookback?
+- Captures monthly patterns and trends
+- Provides enough context for 25 technical indicators
 - Not too short (noisy) or too long (stale)
-- Aligns with weekly rebalancing strategy
+- Standard window for position trading analysis
 
-### Why 7-Day Prediction?
-- Matches rebalancing frequency
+### Why 21-Day Prediction?
+- Matches position trading strategy (approximately one trading month)
 - Long enough for ML to find edge
 - Short enough to be actionable
+- Aligns with portfolio rebalancing frequency
 
 ### Why LSTM over Other Models?
 - **vs Simple Moving Average:** LSTM learns patterns, not fixed rules
