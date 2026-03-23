@@ -333,11 +333,12 @@ def calculate_ml_allocation(predictions):
 - Use sector-relative features
 
 ### Challenge 2: Market Volatility
-**Problem:** Stock prices can be volatile
+**Problem:** Stock prices can be volatile, especially growth stocks
 **Solution:**
 - Predict returns (%), not absolute prices
 - Use dropout for robustness
 - Don't overfit on specific patterns
+- Zero-commission trading removes fee drag
 
 ### Challenge 3: Overfitting Risk
 **Problem:** Model might memorize training data
@@ -383,7 +384,7 @@ def calculate_ml_allocation(predictions):
 This phase will demonstrate:
 1. End-to-end ML pipeline (data → model → predictions)
 2. Time series forecasting with LSTM
-3. Feature engineering for financial data
+3. Feature engineering for financial data (25 technical indicators)
 4. Model evaluation and validation
 5. Production ML deployment
 6. GCP Vertex AI integration
