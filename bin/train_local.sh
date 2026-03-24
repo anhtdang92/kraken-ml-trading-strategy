@@ -72,27 +72,31 @@ echo "2. Full Training - all 33 stocks (base model)"
 echo ""
 echo "  === GPU Optimized (RTX 4090 / 3090 / A100) ==="
 echo "3. GPU Training - 7 tech stocks"
-echo "   3-layer BiLSTM(256) + Attention, ~1.2M params"
-echo "   Batch 256, mixed precision, cosine annealing"
+echo "   3-layer BiLSTM(256) + Attention + directional loss, ~1.2M params"
+echo "   Multi-horizon (5d/10d/21d), data augmentation, XLA JIT"
 echo ""
 echo "4. GPU MAX Training - 7 tech stocks"
 echo "   4-layer BiLSTM(512) + Attention + Conv1D, ~5M params"
 echo "   Batch 512, mixed precision, 60-day lookback"
 echo ""
-echo "5. GPU Full Training - ALL 33 stocks"
-echo "   Choose preset at prompt (gpu or gpu_max)"
+echo "5. Transformer Training - 7 tech stocks"
+echo "   6-layer Transformer Encoder (d=256, 8 heads), ~3M params"
+echo "   Positional encoding, GELU activations, financial loss"
 echo ""
-echo "6. GPU Ensemble - 5 models per stock (most accurate)"
+echo "6. GPU Full Training - ALL 33 stocks"
+echo "   Choose preset at prompt (gpu, gpu_max, transformer)"
+echo ""
+echo "7. GPU Ensemble - 5 models per stock (most accurate)"
 echo "   Choose preset and stocks at prompt"
 echo ""
 echo "  === Validation ==="
-echo "7. Walk-Forward Validation (single stock, GPU model)"
+echo "8. Walk-Forward Validation (single stock, GPU model)"
 echo ""
-echo "8. Single Stock GPU Training"
+echo "9. Single Stock GPU Training"
 echo ""
 echo "0. Exit"
 echo ""
-read -p "Enter choice [0-8]: " choice
+read -p "Enter choice [0-9]: " choice
 
 case $choice in
     1)
@@ -178,7 +182,30 @@ print('\nGPU MAX Training complete!')
         ;;
     5)
         echo ""
-        read -p "Choose preset (gpu / gpu_max) [gpu]: " PRESET
+        echo "Starting Transformer training (7 tech stocks, 6-layer d=256)..."
+        echo "Positional encoding, GELU, financial loss, XLA JIT"
+        echo ""
+        cd "$PROJECT_DIR"
+        python3 -c "
+from ml.prediction_service import PredictionService
+ps = PredictionService(provider='local')
+symbols = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA']
+for i, sym in enumerate(symbols):
+    print(f'\n[{i+1}/{len(symbols)}] Transformer Training {sym}...')
+    result = ps.train_model_gpu(sym, preset='transformer', days=730, lookback=60, epochs=300)
+    if result['status'] == 'success':
+        m = result['metrics']
+        print(f'  Params: {result.get(\"total_params\", 0):,}')
+        print(f'  DA: {m[\"directional_accuracy\"]:.1%} | MAE: {m[\"mae\"]:.4f} | IC: {m[\"information_coefficient\"]:.4f}')
+        print(f'  Sharpe: {m.get(\"sharpe_ratio\", 0):.2f}')
+    else:
+        print(f'  Failed: {result.get(\"message\", \"unknown error\")}')
+print('\nTransformer Training complete!')
+"
+        ;;
+    6)
+        echo ""
+        read -p "Choose preset (gpu / gpu_max / transformer) [gpu]: " PRESET
         PRESET=${PRESET:-gpu}
         echo ""
         echo "Starting GPU training for ALL 33 stocks (preset=$PRESET)..."
@@ -196,9 +223,9 @@ for sym, r in results.items():
         print(f'  {sym}: DA={m[\"directional_accuracy\"]:.1%}, MAE={m[\"mae\"]:.4f}, params={r.get(\"total_params\",0):,}')
 "
         ;;
-    6)
+    7)
         echo ""
-        read -p "Choose preset (gpu / gpu_max) [gpu]: " PRESET
+        read -p "Choose preset (gpu / gpu_max / transformer) [gpu]: " PRESET
         PRESET=${PRESET:-gpu}
         read -p "Number of ensemble models [5]: " N_ENSEMBLE
         N_ENSEMBLE=${N_ENSEMBLE:-5}
@@ -232,11 +259,11 @@ for i, sym in enumerate(symbols):
 print('\nGPU Ensemble Training complete!')
 "
         ;;
-    7)
+    8)
         echo ""
         read -p "Enter stock symbol (e.g. AAPL): " SYMBOL
         SYMBOL=$(echo "$SYMBOL" | tr '[:lower:]' '[:upper:]')
-        read -p "Choose preset (gpu / gpu_max) [gpu]: " PRESET
+        read -p "Choose preset (gpu / gpu_max / transformer) [gpu]: " PRESET
         PRESET=${PRESET:-gpu}
         echo ""
         echo "Running walk-forward validation for $SYMBOL (5 folds, $PRESET model)..."
@@ -262,11 +289,11 @@ else:
     print(f'Failed: {result.get(\"message\", \"unknown error\")}')
 "
         ;;
-    8)
+    9)
         echo ""
         read -p "Enter stock symbol (e.g. AAPL): " SYMBOL
         SYMBOL=$(echo "$SYMBOL" | tr '[:lower:]' '[:upper:]')
-        read -p "Choose preset (base / gpu / gpu_max) [gpu]: " PRESET
+        read -p "Choose preset (base / gpu / gpu_max / transformer) [gpu]: " PRESET
         PRESET=${PRESET:-gpu}
         echo ""
         echo "GPU Training $SYMBOL with preset=$PRESET..."
