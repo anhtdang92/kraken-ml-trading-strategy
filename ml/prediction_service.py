@@ -528,22 +528,20 @@ class PredictionService:
         use_ensemble: bool = False,
         n_ensemble: int = 5,
     ) -> Dict:
-        """Train GPU-optimized LSTM model.
+        """Train GPU-optimized model (v3.0).
 
         Presets:
-        - 'base':    2-layer LSTM(64), ~6K params — CPU/testing
-        - 'gpu':     3-layer BiLSTM(256) + Attention, ~1.2M params
-        - 'gpu_max': 4-layer BiLSTM(512) + Attention + Conv1D, ~5M params
+        - 'base':        2-layer LSTM(64), ~6K params — CPU/testing
+        - 'gpu':         3-layer BiLSTM(256) + Attention, ~1.2M params
+        - 'gpu_max':     4-layer BiLSTM(512) + Attention + Conv1D, ~5M params
+        - 'transformer': 6-layer Transformer Encoder (d=256), ~3M params
 
-        Args:
-            symbol: Stock ticker.
-            preset: Model tier ('base', 'gpu', 'gpu_max').
-            days: Days of historical data to fetch.
-            lookback: Lookback window (60 for GPU models, 30 for base).
-            epochs: Max training epochs (early stopping will cut short).
-            save_model: Whether to save trained model to disk.
-            use_ensemble: Train N models and average predictions.
-            n_ensemble: Number of ensemble members.
+        Features:
+        - Multi-horizon targets (5d, 10d, 21d) for gpu/gpu_max/transformer presets
+        - Custom directional loss function
+        - tf.data pipeline with prefetching
+        - Time series data augmentation
+        - XLA JIT compilation
         """
         if not HAS_GPU_MODEL:
             return {
@@ -552,9 +550,9 @@ class PredictionService:
                 'symbol': symbol,
             }
 
-        logger.info(f"GPU Training: {symbol} | preset={preset} | ensemble={use_ensemble}")
+        logger.info(f"GPU Training v3.0: {symbol} | preset={preset} | ensemble={use_ensemble}")
 
-        # Configure GPU (mixed precision, memory growth)
+        # Configure GPU
         gpu_info = configure_gpu(memory_growth=True, mixed_precision=(preset != 'base'))
 
         try:
@@ -572,17 +570,36 @@ class PredictionService:
             df_train_norm = self.feature_engineer.normalize_features(df_train, fit=True)
             df_val_norm = self.feature_engineer.normalize_features(df_val, fit=False)
 
-            X_train, y_train = self.feature_engineer.create_sequences(
-                df_train_norm, lookback=lookback, prediction_horizon=21
-            )
-            X_val, y_val = self.feature_engineer.create_sequences(
-                df_val_norm, lookback=lookback, prediction_horizon=21
-            )
+            # Check if preset supports multi-horizon
+            preset_config = StockLSTMGPU.PRESETS.get(preset, {})
+            use_multi_horizon = preset_config.get('multi_horizon', False)
 
-            if len(X_train) < 50 or len(X_val) < 10:
+            if use_multi_horizon:
+                X_train, y_train = self.feature_engineer.create_multi_horizon_sequences(
+                    df_train_norm, lookback=lookback, horizons=(5, 10, 21)
+                )
+                X_val, y_val = self.feature_engineer.create_multi_horizon_sequences(
+                    df_val_norm, lookback=lookback, horizons=(5, 10, 21)
+                )
+            else:
+                X_train, y_train = self.feature_engineer.create_sequences(
+                    df_train_norm, lookback=lookback, prediction_horizon=21
+                )
+                X_val, y_val = self.feature_engineer.create_sequences(
+                    df_val_norm, lookback=lookback, prediction_horizon=21
+                )
+
+            min_train = 50 if not use_multi_horizon else 30
+            min_val = 10 if not use_multi_horizon else 5
+            n_train = len(X_train)
+            n_val = len(X_val)
+            if n_train < min_train or n_val < min_val:
                 return {'status': 'error', 'message': f'Insufficient sequences for {symbol}', 'symbol': symbol}
 
             num_features = len(self.feature_engineer.features)
+
+            # For evaluation, extract 21d targets
+            y_val_eval = y_val['pred_21d'] if isinstance(y_val, dict) else y_val
 
             if use_ensemble:
                 ensemble = EnsembleStockLSTMGPU(
@@ -600,7 +617,7 @@ class PredictionService:
                 )
                 model.build_model()
                 history = model.train(X_train, y_train, X_val, y_val, epochs, 1)
-                metrics = model.evaluate(X_val, y_val)
+                metrics = model.evaluate(X_val, y_val_eval)
 
                 if save_model:
                     model_path = self.models_dir / f"{symbol}_model.h5"

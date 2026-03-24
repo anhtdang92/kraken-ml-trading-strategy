@@ -93,9 +93,10 @@ ml:
   model_type: "LSTM"
 
   # Model presets (choose one):
-  #   base:    2-layer LSTM(64), ~6K params — runs on CPU
-  #   gpu:     3-layer BiLSTM(256) + Attention, ~1.2M params — RTX 3060+
-  #   gpu_max: 4-layer BiLSTM(512) + Attention + Conv1D, ~5M params — RTX 4090
+  #   base:        2-layer LSTM(64), ~6K params — runs on CPU
+  #   gpu:         3-layer BiLSTM(256) + Attention, ~1.2M params — RTX 3060+
+  #   gpu_max:     4-layer BiLSTM(512) + Attention + Conv1D, ~5M params — RTX 4090
+  #   transformer: 6-layer Transformer Encoder (d=256, 8 heads), ~3M params — RTX 4090
   model_preset: "gpu"
 
   # LSTM architecture (base preset — overridden by gpu presets)

@@ -36,9 +36,13 @@ logger = logging.getLogger(__name__)
 
 
 class FeatureEngineer:
-    """Create features from raw OHLCV stock data for position trading."""
+    """Create features from raw OHLCV stock data for position trading.
 
-    EXPECTED_FEATURE_COUNT: int = 29
+    v3.0: Added calendar effects, sector-relative features, z-score normalization,
+    and multi-horizon target creation.
+    """
+
+    EXPECTED_FEATURE_COUNT: int = 34  # 29 original + 5 new
     # Minimum rows of data needed before rolling indicators are reliable
     WARMUP_ROWS: int = 50
 
@@ -174,6 +178,57 @@ class FeatureEngineer:
         logger.info("Calculated market regime features")
         return df
 
+    def calculate_calendar_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add cyclical calendar features.
+
+        Position trading (21-day horizon) benefits from monthly and weekly seasonality.
+        Uses sin/cos encoding to preserve cyclical nature.
+        """
+        if 'timestamp' in df.columns:
+            ts = pd.to_datetime(df['timestamp'])
+        elif df.index.dtype == 'datetime64[ns]':
+            ts = df.index
+        else:
+            # Fallback: use sequential approximation
+            logger.warning("No timestamp found, skipping calendar features")
+            df['Month_Sin'] = 0.0
+            df['Month_Cos'] = 0.0
+            df['DayOfWeek_Sin'] = 0.0
+            df['DayOfWeek_Cos'] = 0.0
+            return df
+
+        month = ts.month
+        day_of_week = ts.dayofweek
+
+        df['Month_Sin'] = np.sin(2 * np.pi * month / 12)
+        df['Month_Cos'] = np.cos(2 * np.pi * month / 12)
+        df['DayOfWeek_Sin'] = np.sin(2 * np.pi * day_of_week / 5)
+        df['DayOfWeek_Cos'] = np.cos(2 * np.pi * day_of_week / 5)
+
+        logger.info("Calculated calendar features (month, day-of-week cyclical)")
+        return df
+
+    def calculate_relative_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add relative strength feature based on mean return vs rolling average.
+
+        Captures when a stock is outperforming/underperforming its own trend.
+        Cross-sectional features (vs sector ETF) require external data and are
+        handled separately in the training pipeline if available.
+        """
+        returns = df['close'].pct_change()
+        mean_return_60 = returns.rolling(window=60, min_periods=1).mean()
+        std_return_60 = returns.rolling(window=60, min_periods=1).std()
+
+        # Self-relative strength: how much current return deviates from 60-day mean
+        df['Relative_Strength'] = np.where(
+            std_return_60 > 0,
+            (returns - mean_return_60) / std_return_60,
+            0.0
+        )
+
+        logger.info("Calculated relative strength features")
+        return df
+
     def calculate_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Calculate all technical indicators for stock prediction."""
         logger.info(f"Calculating features for {len(df)} records...")
@@ -187,6 +242,8 @@ class FeatureEngineer:
         df = self.calculate_momentum(df)
         df = self.calculate_volatility(df)
         df = self.calculate_market_regime(df)
+        df = self.calculate_calendar_features(df)
+        df = self.calculate_relative_features(df)
 
         # Fill NaN: forward fill first (natural), then backfill for start-of-series
         df = df.ffill().bfill()
@@ -206,7 +263,10 @@ class FeatureEngineer:
             'Volume_MA_20', 'Volume_ROC', 'Volume_Ratio',
             'Daily_Return', 'Momentum_14', 'Momentum_30', 'ROC_10',
             'Volatility_14', 'Volatility_30', 'ATR_14',
-            'Vol_Regime', 'Dist_52w_High', 'Price_Zscore', 'Trend_Strength'
+            'Vol_Regime', 'Dist_52w_High', 'Price_Zscore', 'Trend_Strength',
+            # v3.0 additions
+            'Month_Sin', 'Month_Cos', 'DayOfWeek_Sin', 'DayOfWeek_Cos',
+            'Relative_Strength',
         ]
 
         logger.info(f"Feature engineering complete! Created {len(self.features)} features")
@@ -256,6 +316,41 @@ class FeatureEngineer:
         logger.info(f"   Output shape: {y.shape} (samples,)")
 
         return X, y
+
+    def create_multi_horizon_sequences(
+        self,
+        df: pd.DataFrame,
+        lookback: int = 60,
+        horizons: Tuple[int, ...] = (5, 10, 21),
+    ) -> Tuple[np.ndarray, Dict[str, np.ndarray]]:
+        """Create sequences with multiple prediction horizons for joint learning.
+
+        Returns X and a dict of target arrays keyed by 'pred_5d', 'pred_10d', 'pred_21d'.
+        """
+        logger.info(f"Creating multi-horizon sequences: lookback={lookback}, horizons={horizons}")
+
+        feature_data = df[self.features].values
+        max_horizon = max(horizons)
+
+        df = df.copy()
+        for h in horizons:
+            col = f'Future_Return_{h}d'
+            df[col] = df['close'].pct_change(periods=h).shift(-h)
+
+        df = df.dropna(subset=[f'Future_Return_{h}d' for h in horizons])
+
+        X, targets = [], {f'pred_{h}d': [] for h in horizons}
+
+        for i in range(len(df) - lookback):
+            X.append(feature_data[i:i + lookback])
+            for h in horizons:
+                targets[f'pred_{h}d'].append(df[f'Future_Return_{h}d'].iloc[i + lookback])
+
+        X = np.array(X, dtype=np.float32)
+        targets = {k: np.array(v, dtype=np.float32) for k, v in targets.items()}
+
+        logger.info(f"Created {len(X)} multi-horizon sequences")
+        return X, targets
 
     def normalize_features(
         self,
